@@ -1,0 +1,34 @@
+# Runtime secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.uv-cache/
+.npm-cache/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# Test and runtime output
+coverage/
+htmlcov/
+*.log
+uploads/
+postgres_data/
+
+# Editor and operating system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.tools/
