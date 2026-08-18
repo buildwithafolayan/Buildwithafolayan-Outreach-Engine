@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
-export const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+export const DEFAULT_GEMINI_MODEL =
+  process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 function getClient(): GoogleGenAI {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -8,6 +9,47 @@ function getClient(): GoogleGenAI {
     throw new Error("GEMINI_API_KEY is not configured in environment variables.");
   }
   return new GoogleGenAI({ apiKey });
+}
+
+/**
+ * Helper to generate content with smart model fallback.
+ */
+async function generateWithFallback(
+  client: GoogleGenAI,
+  prompt: string,
+  responseMimeType?: string
+) {
+  const primaryModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const candidateModels = [
+    primaryModel,
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+  ];
+
+  // Remove duplicates
+  const modelsToTry = Array.from(new Set(candidateModels));
+
+  let lastError: unknown = null;
+  for (const model of modelsToTry) {
+    try {
+      const response = await client.models.generateContent({
+        model,
+        contents: prompt,
+        config: responseMimeType
+          ? { responseMimeType }
+          : undefined,
+      });
+      if (response && response.text) {
+        return response.text;
+      }
+    } catch (err) {
+      lastError = err;
+      console.warn(`Model ${model} failed, trying next candidate...`, err);
+    }
+  }
+
+  throw lastError || new Error("All Gemini model candidates failed.");
 }
 
 export type ReplyClassificationType =
@@ -70,20 +112,11 @@ Return ONLY a valid JSON object matching this exact schema:
 }`;
 
   try {
-    const response = await client.models.generateContent({
-      model: DEFAULT_GEMINI_MODEL,
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      },
-    });
-
-    const text = response.text || "{}";
+    const text = await generateWithFallback(client, prompt, "application/json");
     const parsed = JSON.parse(text) as ReplyClassificationResult;
     return parsed;
   } catch (error) {
     console.error("Gemini reply classification error:", error);
-    // Fallback safe classification
     return {
       classification: "UNCLEAR",
       confidence: 0.0,
@@ -157,19 +190,10 @@ Return ONLY a valid JSON object matching this schema:
 }`;
 
   try {
-    const response = await client.models.generateContent({
-      model: DEFAULT_GEMINI_MODEL,
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      },
-    });
-
-    const text = response.text || "{}";
+    const text = await generateWithFallback(client, prompt, "application/json");
     return JSON.parse(text) as PersonalizedEmailResult;
   } catch (error) {
     console.error("Gemini email personalization error:", error);
-    // Simple deterministic variable replacement as fallback
     const fallbackSubject = params.templateSubject
       .replace(/{{first_name}}/g, params.contact.firstName)
       .replace(/{{company}}/g, params.contact.company);
@@ -234,15 +258,7 @@ Return ONLY a valid JSON array matching this schema:
 ]`;
 
   try {
-    const response = await client.models.generateContent({
-      model: DEFAULT_GEMINI_MODEL,
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      },
-    });
-
-    const text = response.text || "[]";
+    const text = await generateWithFallback(client, prompt, "application/json");
     return JSON.parse(text) as GeneratedSequenceStep[];
   } catch (error) {
     console.error("Gemini sequence generation error:", error);
