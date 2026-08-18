@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: "⊞" },
@@ -15,8 +15,10 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [globalSending, setGlobalSending] = useState(false);
   const [hasGmail, setHasGmail] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -32,6 +34,18 @@ export default function Sidebar() {
     });
   }, [pathname]);
 
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/login");
+      router.refresh();
+    } catch (err) {
+      console.error("Logout error:", err);
+      window.location.href = "/login";
+    }
+  };
+
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
@@ -40,12 +54,12 @@ export default function Sidebar() {
   return (
     <aside className="sidebar" aria-label="Primary navigation">
       <div className="sidebar-brand">
-        <div className="sidebar-brand-icon" aria-hidden="true">O</div>
-        <span className="sidebar-brand-text">Outreach Engine</span>
+        <div className="sidebar-brand-icon" aria-hidden="true">F</div>
+        <span className="sidebar-brand-text">Favour Outreach OS</span>
       </div>
 
       <nav className="sidebar-nav">
-        <span className="sidebar-section-label">Menu</span>
+        <span className="sidebar-section-label">Workspace</span>
         {navItems.map(({ href, label, icon }) => (
           <Link
             key={href}
@@ -77,7 +91,34 @@ export default function Sidebar() {
               : "Global sending paused"}
           </span>
         </div>
-        <div className="sidebar-env">Private Outreach Engine · Live</div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: "8px",
+            paddingTop: "8px",
+            borderTop: "1px solid var(--border-subtle)",
+          }}
+        >
+          <div className="sidebar-env" style={{ fontSize: "11px" }}>
+            Private Instance
+          </div>
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="btn btn-ghost"
+            style={{
+              fontSize: "11px",
+              padding: "2px 6px",
+              color: "var(--text-tertiary)",
+            }}
+            title="Lock session and log out"
+          >
+            {isLoggingOut ? "Locking..." : "🔒 Lock"}
+          </button>
+        </div>
       </div>
     </aside>
   );

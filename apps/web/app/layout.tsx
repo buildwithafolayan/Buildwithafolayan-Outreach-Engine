@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Inter } from "next/font/google";
 
 import "./globals.css";
-import Sidebar from "./components/Sidebar";
+import AppShell from "./components/AppShell";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,22 +13,19 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Outreach Engine",
-    template: "%s | Outreach Engine",
+    default: "Favour Outreach OS",
+    template: "%s | Favour Outreach OS",
   },
-  description: "A private, single-operator Gmail outreach system for targeted B2B outreach.",
+  description: "Private, single-operator AI outbound sales operations command center.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <div className="app-shell">
-          <Sidebar />
-          <main className="main-content">
-            {children}
-          </main>
-        </div>
+        <AppShell>
+          {children}
+        </AppShell>
       </body>
     </html>
   );
