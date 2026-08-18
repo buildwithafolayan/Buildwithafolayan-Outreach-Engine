@@ -13,14 +13,21 @@ export const GMAIL_SCOPES = [
 ];
 
 export function getGoogleOAuthUrl(customRedirectUri?: string): string {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientId = (
+    process.env.GOOGLE_CLIENT_ID ||
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+    ""
+  ).trim();
   const redirectUri =
     customRedirectUri ||
     process.env.GOOGLE_REDIRECT_URI ||
+    process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI ||
     "http://localhost:3000/api/auth/callback/google";
 
   if (!clientId) {
-    throw new Error("GOOGLE_CLIENT_ID is not configured.");
+    throw new Error(
+      "GOOGLE_CLIENT_ID is not configured in environment variables. Please add it to your Vercel project settings."
+    );
   }
 
   const params = new URLSearchParams({
@@ -64,11 +71,20 @@ export async function exchangeCodeForTokens(
   tokens: GoogleTokens;
   profile: { email: string; name?: string; picture?: string };
 }> {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const clientId = (
+    process.env.GOOGLE_CLIENT_ID ||
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+    ""
+  ).trim();
+  const clientSecret = (
+    process.env.GOOGLE_CLIENT_SECRET ||
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET ||
+    ""
+  ).trim();
   const redirectUri =
     customRedirectUri ||
     process.env.GOOGLE_REDIRECT_URI ||
+    process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI ||
     "http://localhost:3000/api/auth/callback/google";
 
   if (!clientId || !clientSecret) {

@@ -24,6 +24,8 @@ export default function GmailConnectSection() {
     error?: string;
   } | null>(null);
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const fetchAccount = async () => {
     try {
       const res = await fetch("/api/gmail/account");
@@ -43,6 +45,13 @@ export default function GmailConnectSection() {
 
   useEffect(() => {
     fetchAccount();
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const err = params.get("error");
+      if (err) {
+        setErrorMessage(decodeURIComponent(err));
+      }
+    }
   }, []);
 
   const handleDisconnect = async () => {
@@ -92,6 +101,34 @@ export default function GmailConnectSection() {
   return (
     <div className="settings-section">
       <h2 className="settings-section-title">Gmail Connection</h2>
+
+      {errorMessage && (
+        <div
+          style={{
+            padding: "12px 16px",
+            background: "var(--danger-soft)",
+            color: "var(--danger)",
+            borderRadius: "8px",
+            fontSize: "13px",
+            marginBottom: "var(--space-4)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <p style={{ fontWeight: 650, marginBottom: "2px" }}>⚠️ Google OAuth Notice</p>
+            <p style={{ opacity: 0.9 }}>{errorMessage}</p>
+          </div>
+          <button
+            className="btn btn-ghost"
+            style={{ color: "var(--danger)", padding: "4px 8px" }}
+            onClick={() => setErrorMessage(null)}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {account ? (
         <>
