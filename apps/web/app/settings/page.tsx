@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Header from "../components/Header";
+import GmailConnectSection from "../components/GmailConnectSection";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -39,6 +40,9 @@ export default function SettingsPage() {
           <span className="settings-row-value">Not set</span>
         </div>
       </div>
+
+      {/* Gmail OAuth Connection & Verification */}
+      <GmailConnectSection />
 
       {/* Rate Limits */}
       <div className="settings-section">
@@ -99,46 +103,6 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Gmail Connection */}
-      <div className="settings-section">
-        <h2 className="settings-section-title">Gmail Connection</h2>
-        <div className="settings-row">
-          <div className="settings-row-info">
-            <p className="settings-row-label">Connected Account</p>
-            <p className="settings-row-description">
-              No Gmail account connected. Connect to begin sending outreach emails.
-            </p>
-          </div>
-          <button className="btn btn-primary" disabled>Connect Gmail</button>
-        </div>
-        <div className="settings-row">
-          <div className="settings-row-info">
-            <p className="settings-row-label">Watch Status</p>
-            <p className="settings-row-description">Gmail push notifications for reply detection.</p>
-          </div>
-          <span className="badge badge-neutral"><span className="badge-dot" />Inactive</span>
-        </div>
-      </div>
-
-      {/* Sender Identity */}
-      <div className="settings-section">
-        <h2 className="settings-section-title">Sender Identity</h2>
-        <div className="settings-row">
-          <div className="settings-row-info">
-            <p className="settings-row-label">Email Signature</p>
-            <p className="settings-row-description">Appended to every outbound email. Plain text only in V1.</p>
-          </div>
-          <span className="settings-row-value">Not configured</span>
-        </div>
-        <div className="settings-row">
-          <div className="settings-row-info">
-            <p className="settings-row-label">Admin Email</p>
-            <p className="settings-row-description">Operator contact for system notifications.</p>
-          </div>
-          <span className="settings-row-value">you@example.com</span>
-        </div>
-      </div>
-
       {/* AI Engine */}
       <div className="settings-section">
         <h2 className="settings-section-title">Gemini AI Engine</h2>
@@ -165,6 +129,25 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* Sender Identity */}
+      <div className="settings-section">
+        <h2 className="settings-section-title">Sender Identity</h2>
+        <div className="settings-row">
+          <div className="settings-row-info">
+            <p className="settings-row-label">Email Signature</p>
+            <p className="settings-row-description">Appended to every outbound email. Plain text only in V1.</p>
+          </div>
+          <span className="settings-row-value">Not configured</span>
+        </div>
+        <div className="settings-row">
+          <div className="settings-row-info">
+            <p className="settings-row-label">Admin Email</p>
+            <p className="settings-row-description">Operator contact for system notifications.</p>
+          </div>
+          <span className="settings-row-value">you@example.com</span>
+        </div>
+      </div>
+
       {/* Danger Zone */}
       <div className="settings-section" style={{ borderColor: "rgba(248, 113, 113, 0.2)" }}>
         <h2 className="settings-section-title" style={{ color: "var(--danger)" }}>Danger Zone</h2>
@@ -176,15 +159,6 @@ export default function SettingsPage() {
             </p>
           </div>
           <button className="btn btn-danger">Emergency Stop All</button>
-        </div>
-        <div className="settings-row">
-          <div className="settings-row-info">
-            <p className="settings-row-label">Disconnect Gmail</p>
-            <p className="settings-row-description">
-              Revoke OAuth token, stop watch, and pause all campaigns. This cannot be undone.
-            </p>
-          </div>
-          <button className="btn btn-danger" disabled>Disconnect</button>
         </div>
       </div>
     </div>

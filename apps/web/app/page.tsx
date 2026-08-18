@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Header from "./components/Header";
 import StatusBadge from "./components/StatusBadge";
 
@@ -61,7 +62,7 @@ export default function DashboardPage() {
             Connect your Gmail account to begin. The first outreach will be to a controlled test recipient only.
           </p>
         </div>
-        <button className="btn btn-primary" disabled>Connect Gmail</button>
+        <a href="/api/auth/google/connect" className="btn btn-primary">Connect Gmail</a>
       </div>
 
       {/* Stats */}
@@ -121,27 +122,33 @@ export default function DashboardPage() {
           <h2 className="section-title">Getting Started</h2>
         </div>
         <div className="grid-3">
-          <div className="card card-interactive">
-            <div className="step-number" style={{ marginBottom: "var(--space-4)" }}>1</div>
-            <p style={{ fontWeight: 620, marginBottom: "var(--space-2)" }}>Connect Gmail</p>
-            <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
-              Link your Gmail account via OAuth. Your refresh token is encrypted at rest.
-            </p>
-          </div>
-          <div className="card card-interactive">
-            <div className="step-number" style={{ marginBottom: "var(--space-4)" }}>2</div>
-            <p style={{ fontWeight: 620, marginBottom: "var(--space-2)" }}>Import Contacts</p>
-            <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
-              Upload a CSV of your B2B outreach targets. Each row is validated and deduplicated.
-            </p>
-          </div>
-          <div className="card card-interactive">
-            <div className="step-number" style={{ marginBottom: "var(--space-4)" }}>3</div>
-            <p style={{ fontWeight: 620, marginBottom: "var(--space-2)" }}>Launch Campaign</p>
-            <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
-              Create a sequence, enroll contacts, and run a controlled test before going live.
-            </p>
-          </div>
+          <Link href="/settings" style={{ textDecoration: "none" }}>
+            <div className="card card-interactive">
+              <div className="step-number" style={{ marginBottom: "var(--space-4)" }}>1</div>
+              <p style={{ fontWeight: 620, marginBottom: "var(--space-2)" }}>Connect Gmail</p>
+              <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
+                Link your Gmail account via OAuth. Send & reply detection scopes configured.
+              </p>
+            </div>
+          </Link>
+          <Link href="/contacts" style={{ textDecoration: "none" }}>
+            <div className="card card-interactive">
+              <div className="step-number" style={{ marginBottom: "var(--space-4)" }}>2</div>
+              <p style={{ fontWeight: 620, marginBottom: "var(--space-2)" }}>Import Contacts</p>
+              <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
+                Upload a CSV of your B2B outreach targets. Each row is validated and deduplicated.
+              </p>
+            </div>
+          </Link>
+          <Link href="/campaigns" style={{ textDecoration: "none" }}>
+            <div className="card card-interactive">
+              <div className="step-number" style={{ marginBottom: "var(--space-4)" }}>3</div>
+              <p style={{ fontWeight: 620, marginBottom: "var(--space-2)" }}>Launch Campaign</p>
+              <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
+                Create a sequence, enroll contacts, and run a controlled test before going live.
+              </p>
+            </div>
+          </Link>
         </div>
       </div>
     </div>
