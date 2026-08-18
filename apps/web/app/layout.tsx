@@ -13,8 +13,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Favour Outreach OS",
-    template: "%s | Favour Outreach OS",
+    default: "BuildWithAfolayan",
+    template: "%s | BuildWithAfolayan",
   },
   description: "Private, single-operator AI outbound sales operations command center.",
 };

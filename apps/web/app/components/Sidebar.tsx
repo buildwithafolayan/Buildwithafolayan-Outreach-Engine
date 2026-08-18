@@ -86,10 +86,10 @@ export default function Sidebar() {
       {/* Apple Brand Identity */}
       <div className="sidebar-brand">
         <div className="sidebar-brand-icon" aria-hidden="true">
-          F
+          B
         </div>
         <div>
-          <span className="sidebar-brand-text">Favour OS</span>
+          <span className="sidebar-brand-text">BuildWithAfolayan</span>
           <span
             style={{
               display: "block",

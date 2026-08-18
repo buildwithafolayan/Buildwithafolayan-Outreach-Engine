@@ -98,7 +98,7 @@ function LoginForm() {
               boxShadow: "0 12px 32px rgba(175, 82, 222, 0.4)",
             }}
           >
-            F
+            B
           </div>
           <h1
             style={{
@@ -109,7 +109,7 @@ function LoginForm() {
               color: "#ffffff",
             }}
           >
-            Favour Outreach OS
+            BuildWithAfolayan
           </h1>
           <div
             style={{
