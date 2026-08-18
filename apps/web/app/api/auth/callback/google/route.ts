@@ -6,7 +6,8 @@ export async function GET(req: NextRequest) {
   const code = searchParams.get("code");
   const error = searchParams.get("error");
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = req.nextUrl.origin || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const dynamicRedirectUri = `${baseUrl}/api/auth/callback/google`;
 
   if (error) {
     console.error("Google OAuth error from query param:", error);
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const { tokens, profile } = await exchangeCodeForTokens(code);
+    const { tokens, profile } = await exchangeCodeForTokens(code, dynamicRedirectUri);
 
     await saveGmailSession({
       email: profile.email,

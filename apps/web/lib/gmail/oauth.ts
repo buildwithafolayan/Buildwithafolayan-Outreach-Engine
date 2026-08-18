@@ -12,9 +12,10 @@ export const GMAIL_SCOPES = [
   "https://www.googleapis.com/auth/gmail.readonly",
 ];
 
-export function getGoogleOAuthUrl(): string {
+export function getGoogleOAuthUrl(customRedirectUri?: string): string {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const redirectUri =
+    customRedirectUri ||
     process.env.GOOGLE_REDIRECT_URI ||
     "http://localhost:3000/api/auth/callback/google";
 
@@ -56,13 +57,17 @@ export interface GmailAccountInfo {
 /**
  * Exchange the authorization code for access and refresh tokens.
  */
-export async function exchangeCodeForTokens(code: string): Promise<{
+export async function exchangeCodeForTokens(
+  code: string,
+  customRedirectUri?: string
+): Promise<{
   tokens: GoogleTokens;
   profile: { email: string; name?: string; picture?: string };
 }> {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
   const redirectUri =
+    customRedirectUri ||
     process.env.GOOGLE_REDIRECT_URI ||
     "http://localhost:3000/api/auth/callback/google";
 
