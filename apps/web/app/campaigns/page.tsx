@@ -28,7 +28,7 @@ interface Campaign {
   nextAction?: string;
 }
 
-const filters = ["All", "Active", "Draft", "Paused", "Archived"];
+const filters = ["All", "Active", "Draft", "Paused"];
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -60,26 +60,55 @@ export default function CampaignsPage() {
   });
 
   return (
-    <div className="animate-in">
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
       <Header
-        eyebrow="Campaigns"
-        title="Outreach campaigns"
-        description="Create sequenced email campaigns, manage enrollment, and track performance."
+        eyebrow="Outbound Sequences"
+        title="Email Campaigns"
+        description="Design multi-step email cadences with Gemini AI copywriting and track automated sending."
         actions={
           <button
             className="btn btn-primary"
             onClick={() => setShowCreateModal(true)}
           >
-            + Create Campaign
+            <span>+</span>
+            <span>New Campaign</span>
           </button>
         }
       />
 
+      {/* iOS Segmented Filter Control */}
+      <div
+        className="ios-glass"
+        style={{
+          padding: "10px 16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div className="ios-segmented-control">
+          {filters.map((f) => (
+            <button
+              key={f}
+              className={`ios-segment-btn${activeFilter === f ? " active" : ""}`}
+              onClick={() => setActiveFilter(f)}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+
+        <span style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
+          {filteredCampaigns.length} sequence{filteredCampaigns.length === 1 ? "" : "s"}
+        </span>
+      </div>
+
+      {/* Campaigns Grid */}
       {campaigns.length === 0 && !loading ? (
         <EmptyState
           icon="◈"
-          title="No campaigns yet"
-          description="Create your first campaign to start reaching out to your contacts with sequenced emails."
+          title="No campaigns created yet"
+          description="Create your first sequence with Gemini AI to automate outreach to your prospect targets."
           action={
             <button
               className="btn btn-primary"
@@ -90,111 +119,103 @@ export default function CampaignsPage() {
           }
         />
       ) : (
-        <>
-          <div className="filter-bar">
-            {filters.map((f) => (
-              <button
-                key={f}
-                className={`filter-chip${activeFilter === f ? " active" : ""}`}
-                onClick={() => setActiveFilter(f)}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-
-          <div style={{ display: "grid", gap: "var(--space-4)" }}>
-            {filteredCampaigns.map((c) => (
-              <Link href={`/campaigns/${c.id}`} key={c.id} style={{ textDecoration: "none" }}>
-                <div className="card card-interactive">
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: "var(--space-4)",
-                    }}
-                  >
-                    <div>
-                      <h3 style={{ fontSize: "16px", fontWeight: 660, marginBottom: "var(--space-1)" }}>
-                        {c.name}
-                      </h3>
-                      <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-                        {c.steps?.length || 1} steps · {c.nextAction || "Active sequence"}
-                      </p>
-                    </div>
-                    <StatusBadge status={c.status} />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "20px" }}>
+          {filteredCampaigns.map((camp) => (
+            <Link
+              key={camp.id}
+              href={`/campaigns/${camp.id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <div className="ios-card-interactive">
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "12px" }}>
+                  <div>
+                    <h3 style={{ fontSize: "16px", fontWeight: 750, color: "#ffffff", marginBottom: "4px" }}>
+                      {camp.name}
+                    </h3>
+                    <p style={{ fontSize: "12px", color: "var(--text-tertiary)", maxWidth: "260px" }}>
+                      {camp.description || "No description provided"}
+                    </p>
                   </div>
-                  <div className="stat-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
-                    <div>
+                  <StatusBadge status={camp.status} />
+                </div>
+
+                {/* Steps Visual Rail */}
+                <div style={{ margin: "16px 0", display: "flex", alignItems: "center", gap: "6px" }}>
+                  {(camp.steps || []).map((step, sIdx) => (
+                    <div
+                      key={sIdx}
+                      style={{
+                        flex: 1,
+                        padding: "8px",
+                        background: "rgba(255, 255, 255, 0.04)",
+                        borderRadius: "8px",
+                        border: "1px solid var(--border-subtle)",
+                        textAlign: "center",
+                      }}
+                    >
+                      <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--accent)" }}>
+                        STEP {step.number}
+                      </span>
                       <p
                         style={{
                           fontSize: "11px",
-                          color: "var(--text-muted)",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.05em",
-                          marginBottom: "4px",
+                          color: "var(--text-secondary)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          marginTop: "2px",
                         }}
                       >
-                        Enrolled
+                        {step.subject || "Email"}
                       </p>
-                      <p style={{ fontSize: "20px", fontWeight: 700 }}>{c.enrolledCount}</p>
                     </div>
-                    <div>
-                      <p
-                        style={{
-                          fontSize: "11px",
-                          color: "var(--text-muted)",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.05em",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        Sent
-                      </p>
-                      <p style={{ fontSize: "20px", fontWeight: 700 }}>{c.sentCount}</p>
-                    </div>
-                    <div>
-                      <p
-                        style={{
-                          fontSize: "11px",
-                          color: "var(--text-muted)",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.05em",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        Replied
-                      </p>
-                      <p style={{ fontSize: "20px", fontWeight: 700 }}>{c.repliedCount}</p>
-                    </div>
-                    <div>
-                      <p
-                        style={{
-                          fontSize: "11px",
-                          color: "var(--text-muted)",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.05em",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        Reply Rate
-                      </p>
-                      <p style={{ fontSize: "20px", fontWeight: 700 }}>{c.replyRate}</p>
-                    </div>
+                  ))}
+                </div>
+
+                {/* Metrics Footer */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 1fr",
+                    gap: "8px",
+                    paddingTop: "14px",
+                    borderTop: "1px solid var(--border-subtle)",
+                    textAlign: "center",
+                  }}
+                >
+                  <div>
+                    <span style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>Enrolled</span>
+                    <p style={{ fontSize: "14px", fontWeight: 700, color: "#ffffff" }}>
+                      {camp.enrolledCount || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>Dispatched</span>
+                    <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--accent)" }}>
+                      {camp.sentCount || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>Replies</span>
+                    <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--success)" }}>
+                      {camp.repliedCount || 0}
+                    </p>
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        </>
+              </div>
+            </Link>
+          ))}
+        </div>
       )}
 
-      {/* Modal */}
+      {/* Create Campaign Modal */}
       <CreateCampaignModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        onSuccess={fetchCampaigns}
+        onSuccess={() => {
+          setShowCreateModal(false);
+          fetchCampaigns();
+        }}
       />
     </div>
   );

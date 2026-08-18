@@ -49,31 +49,32 @@ function LoginForm() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "radial-gradient(ellipse at 50% 30%, hsl(220 35% 8%), hsl(220 30% 4%))",
+        background: "var(--ios-bg-canvas)",
         color: "var(--text-primary)",
         padding: "20px",
         position: "relative",
         overflow: "hidden",
       }}
     >
-      {/* Ambient background glow */}
+      {/* Apple Ambient Aurora Glow */}
       <div
         style={{
           position: "absolute",
-          width: "500px",
-          height: "500px",
+          width: "600px",
+          height: "600px",
           borderRadius: "50%",
-          background: "radial-gradient(circle, hsl(230 70% 45% / 0.12), transparent 70%)",
-          top: "20%",
+          background: "radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(175, 82, 222, 0.08) 40%, transparent 70%)",
+          top: "30%",
           left: "50%",
           transform: "translate(-50%, -50%)",
           pointerEvents: "none",
+          filter: "blur(60px)",
         }}
       />
 
       <div
         style={{
-          maxWidth: "400px",
+          maxWidth: "420px",
           width: "100%",
           position: "relative",
           zIndex: 1,
@@ -82,28 +83,28 @@ function LoginForm() {
         {/* Brand Identity */}
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
           <div
+            className="apple-intelligence-glow animate-pulse-glow"
             style={{
-              width: "48px",
-              height: "48px",
-              margin: "0 auto 16px",
-              borderRadius: "12px",
-              background: "linear-gradient(135deg, hsl(230 80% 60%), hsl(260 70% 50%))",
+              width: "56px",
+              height: "56px",
+              margin: "0 auto 18px",
+              borderRadius: "16px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "20px",
+              fontSize: "24px",
               fontWeight: 800,
               color: "#ffffff",
-              boxShadow: "0 8px 24px hsl(230 80% 50% / 0.35)",
+              boxShadow: "0 12px 32px rgba(175, 82, 222, 0.4)",
             }}
           >
             F
           </div>
           <h1
             style={{
-              fontSize: "20px",
-              fontWeight: 700,
-              letterSpacing: "-0.02em",
+              fontSize: "24px",
+              fontWeight: 800,
+              letterSpacing: "-0.03em",
               marginBottom: "6px",
               color: "#ffffff",
             }}
@@ -118,11 +119,12 @@ function LoginForm() {
               fontSize: "11px",
               letterSpacing: "0.06em",
               textTransform: "uppercase",
-              padding: "3px 10px",
+              padding: "4px 12px",
               borderRadius: "100px",
-              background: "hsl(220 25% 14%)",
-              border: "1px solid hsl(220 20% 22%)",
-              color: "hsl(220 20% 70%)",
+              background: "rgba(255, 255, 255, 0.06)",
+              border: "1px solid var(--border-default)",
+              color: "var(--text-secondary)",
+              fontWeight: 650,
             }}
           >
             <span
@@ -130,7 +132,8 @@ function LoginForm() {
                 width: "6px",
                 height: "6px",
                 borderRadius: "50%",
-                background: "hsl(160 80% 45%)",
+                background: "var(--success)",
+                boxShadow: "0 0 8px var(--success)",
               }}
             />
             Private Command Center
@@ -139,13 +142,10 @@ function LoginForm() {
 
         {/* Access Form Card */}
         <div
+          className="ios-glass"
           style={{
-            background: "hsl(220 25% 9% / 0.85)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid hsl(220 20% 18%)",
-            borderRadius: "16px",
-            padding: "32px 28px",
-            boxShadow: "0 24px 48px -12px rgba(0, 0, 0, 0.6)",
+            padding: "36px 30px",
+            boxShadow: "0 28px 64px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.16)",
           }}
         >
           <form onSubmit={handleSubmit}>
@@ -154,13 +154,13 @@ function LoginForm() {
                 style={{
                   display: "block",
                   fontSize: "12px",
-                  fontWeight: 600,
-                  color: "hsl(220 15% 65%)",
+                  fontWeight: 650,
+                  color: "var(--text-secondary)",
                   marginBottom: "8px",
                   letterSpacing: "0.02em",
                 }}
               >
-                Access Key / Password
+                Access Password
               </label>
 
               <div style={{ position: "relative" }}>
@@ -171,24 +171,10 @@ function LoginForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   autoFocus
                   required
+                  className="input"
                   style={{
-                    width: "100%",
-                    padding: "12px 42px 12px 14px",
-                    background: "hsl(220 30% 6%)",
-                    border: "1px solid hsl(220 20% 20%)",
-                    borderRadius: "10px",
-                    color: "#ffffff",
+                    paddingRight: "44px",
                     fontSize: "14px",
-                    outline: "none",
-                    transition: "border-color 0.2s, box-shadow 0.2s",
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = "hsl(230 70% 60%)";
-                    e.currentTarget.style.boxShadow = "0 0 0 3px hsl(230 70% 60% / 0.2)";
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = "hsl(220 20% 20%)";
-                    e.currentTarget.style.boxShadow = "none";
                   }}
                 />
 
@@ -197,14 +183,14 @@ function LoginForm() {
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
                     position: "absolute",
-                    right: "12px",
+                    right: "14px",
                     top: "50%",
                     transform: "translateY(-50%)",
                     background: "transparent",
                     border: "none",
-                    color: "hsl(220 15% 55%)",
+                    color: "var(--text-tertiary)",
                     cursor: "pointer",
-                    fontSize: "13px",
+                    fontSize: "14px",
                     padding: "4px",
                   }}
                   aria-label={showPassword ? "Hide password" : "Show password"}
@@ -218,10 +204,10 @@ function LoginForm() {
               <div
                 style={{
                   padding: "10px 14px",
-                  background: "hsl(0 60% 15% / 0.6)",
-                  border: "1px solid hsl(0 60% 30% / 0.8)",
-                  borderRadius: "8px",
-                  color: "hsl(0 80% 70%)",
+                  background: "rgba(239, 68, 68, 0.12)",
+                  border: "1px solid rgba(239, 68, 68, 0.3)",
+                  borderRadius: "10px",
+                  color: "#fca5a5",
                   fontSize: "12px",
                   marginBottom: "18px",
                   lineHeight: 1.4,
@@ -234,22 +220,15 @@ function LoginForm() {
             <button
               type="submit"
               disabled={isLoading || !password}
+              className="btn btn-primary"
               style={{
                 width: "100%",
-                padding: "12px",
-                background: "linear-gradient(135deg, hsl(230 75% 58%), hsl(250 65% 52%))",
-                border: "none",
-                borderRadius: "10px",
-                color: "#ffffff",
+                padding: "13px",
                 fontSize: "14px",
-                fontWeight: 600,
-                cursor: isLoading || !password ? "not-allowed" : "pointer",
-                opacity: isLoading || !password ? 0.6 : 1,
-                transition: "opacity 0.2s, transform 0.1s",
-                boxShadow: "0 4px 16px hsl(230 70% 50% / 0.3)",
+                fontWeight: 700,
               }}
             >
-              {isLoading ? "Verifying..." : "Authenticate & Enter →"}
+              {isLoading ? "Authenticating..." : "Authenticate & Enter →"}
             </button>
           </form>
         </div>
@@ -260,11 +239,11 @@ function LoginForm() {
             textAlign: "center",
             marginTop: "24px",
             fontSize: "11px",
-            color: "hsl(220 15% 45%)",
+            color: "var(--text-muted)",
             letterSpacing: "0.02em",
           }}
         >
-          Protected Single-Operator Instance · Encrypted Session
+          Single-Operator Instance · Encrypted Session
         </p>
       </div>
     </div>
@@ -281,8 +260,8 @@ export default function LoginPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "hsl(220 30% 4%)",
-            color: "hsl(220 15% 55%)",
+            background: "var(--ios-bg-canvas)",
+            color: "var(--text-secondary)",
           }}
         >
           Loading access gate...

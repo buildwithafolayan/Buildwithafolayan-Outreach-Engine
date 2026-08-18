@@ -11,7 +11,20 @@ export default function Header({ eyebrow, title, description, actions }: HeaderP
   return (
     <header className="page-header">
       <div className="page-header-content">
-        {eyebrow && <p className="page-eyebrow">{eyebrow}</p>}
+        {eyebrow && (
+          <div className="page-eyebrow">
+            <span
+              style={{
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                background: "var(--accent)",
+                boxShadow: "0 0 8px var(--accent)",
+              }}
+            />
+            {eyebrow}
+          </div>
+        )}
         <h1 className="page-title">{title}</h1>
         {description && <p className="page-description">{description}</p>}
       </div>

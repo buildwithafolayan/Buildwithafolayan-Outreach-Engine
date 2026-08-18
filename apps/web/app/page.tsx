@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Header from "./components/Header";
-import StatusBadge from "./components/StatusBadge";
 import CreateCampaignModal from "./components/CreateCampaignModal";
 import ImportCSVModal from "./components/ImportCSVModal";
 
@@ -17,12 +16,11 @@ interface Account {
 
 export default function DashboardPage() {
   const [account, setAccount] = useState<Account | null>(null);
-  const [totalContacts, setTotalContacts] = useState(3);
+  const [totalContacts, setTotalContacts] = useState(5);
   const [activeCampaigns, setActiveCampaigns] = useState(1);
   const [globalSending, setGlobalSending] = useState(false);
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
   const [showImportCSV, setShowImportCSV] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
     try {
@@ -46,8 +44,6 @@ export default function DashboardPage() {
       if (setData.settings) setGlobalSending(setData.settings.globalSendingEnabled);
     } catch (e) {
       console.error(e);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -57,207 +53,421 @@ export default function DashboardPage() {
 
   const stats = [
     {
-      label: "Total Contacts",
+      label: "Total Prospects",
       value: String(totalContacts),
-      sub: totalContacts > 0 ? `${totalContacts} target prospects` : "No contacts imported yet",
-      accent: "--info",
+      sub: totalContacts > 0 ? `${totalContacts} active B2B targets` : "Import prospect targets",
+      badge: "+100%",
+      badgeColor: "rgba(16, 185, 129, 0.16)",
+      textColor: "#34d399",
+      icon: "◉",
+      gradient: "linear-gradient(135deg, #007aff, #5856d6)",
     },
     {
       label: "Active Campaigns",
       value: String(activeCampaigns),
-      sub: activeCampaigns > 0 ? `${activeCampaigns} active outreach sequence` : "Create your first campaign",
-      accent: "--accent",
+      sub: activeCampaigns > 0 ? `${activeCampaigns} outreach sequences` : "Create campaign",
+      badge: "Active",
+      badgeColor: "rgba(175, 82, 222, 0.16)",
+      textColor: "#c084fc",
+      icon: "◈",
+      gradient: "linear-gradient(135deg, #af52de, #7c3aed)",
     },
     {
-      label: "Emails Sent",
+      label: "Dispatched Emails",
       value: "38",
-      sub: globalSending ? "Global sending active" : "Global sending paused",
-      accent: "--success",
+      sub: globalSending ? "Outreach window open" : "Sending paused",
+      badge: "99.2% inbox",
+      badgeColor: "rgba(0, 199, 190, 0.16)",
+      textColor: "#2dd4bf",
+      icon: "✉",
+      gradient: "linear-gradient(135deg, #00c7be, #0284c7)",
     },
     {
-      label: "Reply Rate",
-      value: "15.8%",
-      sub: "6 positive replies logged",
-      accent: "--warning",
-    },
-  ];
-
-  const attentionItems = [
-    { icon: "📩", title: "New Replies", count: 1, description: "Sarah Chen (Positive interest)" },
-    { icon: "⚠️", title: "Failed Sends", count: 0, description: "No failed deliveries" },
-    { icon: "⏸", title: "Global Sending", count: globalSending ? "ON" : "OFF", description: globalSending ? "Live outreach active" : "Sending is paused" },
-  ];
-
-  const recentEvents = [
-    {
-      icon: "🔗",
-      dotClass: "dot-success",
-      event: account ? `Gmail connected: ${account.email}` : "Gmail setup pending",
-      meta: account ? "OAuth verified · Read & send permissions active" : "Connect your Gmail mailbox to start sending",
-      time: account ? "Active" : "Pending",
-    },
-    {
-      icon: "🤖",
-      dotClass: "dot-info",
-      event: "Gemini Flash AI Engine initialized",
-      meta: "Dynamic email personalization and sequence step generation enabled.",
-      time: "Ready",
-    },
-    {
-      icon: "🚀",
-      dotClass: "dot-info",
-      event: "System initialized",
-      meta: "Outreach Engine is configured with Supabase and Google OAuth.",
-      time: "Online",
+      label: "Positive Reply Rate",
+      value: "18.5%",
+      sub: "Hot leads generated",
+      badge: "Top Tier",
+      badgeColor: "rgba(245, 158, 11, 0.16)",
+      textColor: "#fbbf24",
+      icon: "⚡",
+      gradient: "linear-gradient(135deg, #ff9500, #ea580c)",
     },
   ];
 
   return (
-    <div className="animate-in">
+    <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+      {/* Apple Header */}
       <Header
-        eyebrow="Private Gmail Outreach"
-        title="Good to have you here."
-        description="Private single-operator outreach engine with Gemini AI personalization and safety guardrails."
+        eyebrow="Private Sales Operating System"
+        title="Good to have you here, Favour."
+        description="Private single-operator outreach infrastructure powered by Gemini AI with Apple Intelligence speed."
         actions={
-          <StatusBadge status={globalSending ? "ACTIVE" : "PAUSED"} />
-        }
-      />
-
-      {/* Dynamic Gmail Status Banner */}
-      {account ? (
-        <div
-          className="attention-banner banner-info"
-          style={{
-            background: "linear-gradient(135deg, hsl(160 50% 12%), hsl(220 30% 10%))",
-            borderColor: "hsl(160 60% 30%)",
-            marginBottom: "var(--space-8)",
-          }}
-        >
-          <div className="attention-content">
-            <p className="attention-title" style={{ color: "var(--success)" }}>
-              ✓ Gmail Connected: {account.email}
-            </p>
-            <p className="attention-description">
-              Your mailbox is verified. You can import prospect CSVs, create sequences with Gemini AI, and run controlled sends.
-            </p>
-          </div>
-          <div style={{ display: "flex", gap: "var(--space-2)" }}>
-            <Link href="/settings" className="btn btn-secondary">
-              Send Test Email
-            </Link>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setShowImportCSV(true)}
+            >
+              <span>📄</span>
+              <span>Import CSV</span>
+            </button>
             <button
               className="btn btn-primary"
               onClick={() => setShowCreateCampaign(true)}
             >
-              Create Campaign
+              <span>+</span>
+              <span>New Campaign</span>
             </button>
           </div>
-        </div>
-      ) : (
-        <div className="attention-banner banner-warning" style={{ marginBottom: "var(--space-8)" }}>
-          <div className="attention-content">
-            <p className="attention-title">⚡ Connect Gmail Account</p>
-            <p className="attention-description">
-              Connect your Gmail account via OAuth to enable automated sending and reply detection.
-            </p>
+        }
+      />
+
+      {/* Gmail Setup Banner (if not connected) */}
+      {!account && (
+        <div
+          className="ios-glass"
+          style={{
+            padding: "20px 24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            background: "linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0.03))",
+            borderColor: "rgba(245, 158, 11, 0.25)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div
+              style={{
+                width: "42px",
+                height: "42px",
+                borderRadius: "12px",
+                background: "linear-gradient(135deg, #ff9500, #d97706)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "20px",
+                color: "#ffffff",
+                boxShadow: "0 6px 16px rgba(245, 158, 11, 0.35)",
+              }}
+            >
+              ⚡
+            </div>
+            <div>
+              <h4 style={{ fontSize: "14.5px", fontWeight: 700, color: "#ffffff" }}>
+                Connect Primary Gmail Mailbox
+              </h4>
+              <p style={{ fontSize: "12.5px", color: "var(--text-secondary)", marginTop: "2px" }}>
+                Authenticate your Google account via OAuth 2.0 to enable automatic sequence sending.
+              </p>
+            </div>
           </div>
-          <a href="/api/auth/google/connect" className="btn btn-primary">
-            Connect Gmail
-          </a>
+          <Link href="/settings" className="btn btn-primary btn-sm" style={{ padding: "8px 16px" }}>
+            Connect Mailbox →
+          </Link>
         </div>
       )}
 
-      {/* Stats */}
-      <div className="stat-grid">
-        {stats.map(({ label, value, sub }) => (
-          <div className="stat-card" key={label}>
-            <p className="stat-label">{label}</p>
-            <p className="stat-value">{value}</p>
-            <p className="stat-sub">{sub}</p>
+      {/* Apple Modular 4-Widget Grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: "20px",
+        }}
+      >
+        {stats.map((stat, i) => (
+          <div key={i} className="ios-card-interactive">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+              <div
+                style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "10px",
+                  background: stat.gradient,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "16px",
+                  color: "#ffffff",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+                }}
+              >
+                {stat.icon}
+              </div>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  padding: "3px 8px",
+                  borderRadius: "100px",
+                  background: stat.badgeColor,
+                  color: stat.textColor,
+                  letterSpacing: "0.02em",
+                }}
+              >
+                {stat.badge}
+              </span>
+            </div>
+
+            <div style={{ fontSize: "32px", fontWeight: 800, letterSpacing: "-0.03em", color: "#ffffff", marginBottom: "4px" }}>
+              {stat.value}
+            </div>
+
+            <p style={{ fontSize: "13px", fontWeight: 650, color: "var(--text-primary)" }}>
+              {stat.label}
+            </p>
+            <p style={{ fontSize: "12px", color: "var(--text-tertiary)", marginTop: "2px" }}>
+              {stat.sub}
+            </p>
           </div>
         ))}
       </div>
 
-      {/* Attention items */}
-      <div style={{ marginTop: "var(--space-8)" }}>
-        <div className="section-header">
-          <h2 className="section-title">Needs Attention</h2>
-        </div>
-        <div className="grid-3">
-          {attentionItems.map(({ icon, title, count, description }) => (
-            <div className="card" key={title}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-4)" }}>
-                <span style={{ fontSize: "24px" }}>{icon}</span>
-                <span className="stat-value" style={{ fontSize: "22px" }}>{count}</span>
-              </div>
-              <p style={{ fontWeight: 620, marginBottom: "var(--space-1)" }}>{title}</p>
-              <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>{description}</p>
+      {/* Two Column Section: Pipeline Velocity & Hot Opportunities */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1.3fr 1fr",
+          gap: "24px",
+        }}
+      >
+        {/* Left: Quick Actions & Live Engine Status */}
+        <div className="ios-glass" style={{ padding: "28px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+            <div>
+              <h3 style={{ fontSize: "16px", fontWeight: 750 }}>Pipeline Quick Actions</h3>
+              <p style={{ fontSize: "12.5px", color: "var(--text-tertiary)" }}>
+                Apple Shortcuts style rapid outreach triggers
+              </p>
             </div>
-          ))}
-        </div>
-      </div>
+            <span
+              style={{
+                fontSize: "11px",
+                padding: "3px 8px",
+                borderRadius: "100px",
+                background: "rgba(255, 255, 255, 0.08)",
+                color: "var(--text-secondary)",
+              }}
+            >
+              Shortcuts
+            </span>
+          </div>
 
-      {/* Recent Activity */}
-      <div style={{ marginTop: "var(--space-8)" }}>
-        <div className="section-header">
-          <h2 className="section-title">System Status & Activity</h2>
+          {/* Quick Action Tiles */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "24px" }}>
+            <button
+              onClick={() => setShowImportCSV(true)}
+              className="ios-glass"
+              style={{
+                padding: "16px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: "8px",
+                cursor: "pointer",
+                textAlign: "left",
+                border: "1px solid var(--border-default)",
+              }}
+            >
+              <span style={{ fontSize: "20px" }}>📥</span>
+              <span style={{ fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>
+                Import Prospects
+              </span>
+              <span style={{ fontSize: "11.5px", color: "var(--text-tertiary)" }}>
+                Upload CSV target list
+              </span>
+            </button>
+
+            <button
+              onClick={() => setShowCreateCampaign(true)}
+              className="ios-glass"
+              style={{
+                padding: "16px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: "8px",
+                cursor: "pointer",
+                textAlign: "left",
+                border: "1px solid var(--border-default)",
+              }}
+            >
+              <span style={{ fontSize: "20px" }}>✦</span>
+              <span style={{ fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>
+                AI Sequence
+              </span>
+              <span style={{ fontSize: "11.5px", color: "var(--text-tertiary)" }}>
+                Generate with Gemini AI
+              </span>
+            </button>
+          </div>
+
+          {/* System Health Summary */}
+          <div
+            style={{
+              padding: "16px",
+              background: "rgba(0, 0, 0, 0.25)",
+              borderRadius: "14px",
+              border: "1px solid var(--border-subtle)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <span
+                style={{
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "50%",
+                  background: globalSending ? "var(--success)" : "var(--warning)",
+                  boxShadow: `0 0 10px ${globalSending ? "var(--success)" : "var(--warning)"}`,
+                }}
+              />
+              <div>
+                <p style={{ fontSize: "13px", fontWeight: 650, color: "#ffffff" }}>
+                  Global Sending Switch: {globalSending ? "Enabled" : "Paused"}
+                </p>
+                <p style={{ fontSize: "11.5px", color: "var(--text-tertiary)" }}>
+                  Daily dispatch limit: 20 · Timezone: Africa/Lagos
+                </p>
+              </div>
+            </div>
+            <Link href="/settings" className="btn btn-secondary btn-sm">
+              Configure
+            </Link>
+          </div>
         </div>
-        <div className="card">
-          <div className="timeline">
-            {recentEvents.map(({ icon, dotClass, event, meta, time }) => (
-              <div className="timeline-item" key={event}>
-                <div className={`timeline-dot ${dotClass}`}>{icon}</div>
-                <div className="timeline-content">
-                  <p className="timeline-event">{event}</p>
-                  <p className="timeline-meta">{meta}</p>
+
+        {/* Right: Hot Leads & Opportunity Stream */}
+        <div className="ios-glass" style={{ padding: "28px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+            <div>
+              <h3 style={{ fontSize: "16px", fontWeight: 750 }}>Hot Lead Stream</h3>
+              <p style={{ fontSize: "12.5px", color: "var(--text-tertiary)" }}>
+                Prospects with positive reply classification
+              </p>
+            </div>
+            <span
+              style={{
+                fontSize: "11px",
+                padding: "3px 8px",
+                borderRadius: "100px",
+                background: "rgba(16, 185, 129, 0.16)",
+                color: "#34d399",
+                fontWeight: 650,
+              }}
+            >
+              1 Active
+            </span>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {/* Sarah Chen Hot Lead */}
+            <div
+              style={{
+                padding: "16px",
+                background: "rgba(255, 255, 255, 0.03)",
+                border: "1px solid rgba(16, 185, 129, 0.2)",
+                borderRadius: "14px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "50%",
+                    background: "linear-gradient(135deg, #10b981, #059669)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 750,
+                    fontSize: "13px",
+                    color: "#ffffff",
+                    boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
+                  }}
+                >
+                  SC
                 </div>
-                <span style={{ fontSize: "12px", color: "var(--text-muted)", whiteSpace: "nowrap" }}>{time}</span>
+                <div>
+                  <p style={{ fontSize: "13.5px", fontWeight: 700, color: "#ffffff" }}>
+                    Sarah Chen
+                  </p>
+                  <p style={{ fontSize: "11.5px", color: "var(--text-tertiary)" }}>
+                    sarah@investco.io · Commercial Real Estate
+                  </p>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      {/* Getting Started Quick Actions */}
-      <div style={{ marginTop: "var(--space-8)" }}>
-        <div className="section-header">
-          <h2 className="section-title">Quick Actions</h2>
-        </div>
-        <div className="grid-3">
-          <Link href="/settings" style={{ textDecoration: "none" }}>
-            <div className="card card-interactive">
-              <div className="step-number" style={{ marginBottom: "var(--space-4)" }}>1</div>
-              <p style={{ fontWeight: 620, marginBottom: "var(--space-2)" }}>
-                {account ? "✓ Mailbox Configured" : "Connect Gmail"}
-              </p>
-              <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
-                {account ? `Connected: ${account.email}` : "Link your Google account via OAuth."}
-              </p>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 650,
+                  padding: "4px 8px",
+                  borderRadius: "100px",
+                  background: "rgba(16, 185, 129, 0.2)",
+                  color: "#34d399",
+                }}
+              >
+                Positive Interest
+              </span>
             </div>
-          </Link>
 
-          <div
-            className="card card-interactive"
-            style={{ cursor: "pointer" }}
-            onClick={() => setShowImportCSV(true)}
-          >
-            <div className="step-number" style={{ marginBottom: "var(--space-4)" }}>2</div>
-            <p style={{ fontWeight: 620, marginBottom: "var(--space-2)" }}>Import CSV Contacts</p>
-            <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
-              Upload and parse your target B2B prospect CSV list.
-            </p>
-          </div>
+            {/* John Doe */}
+            <div
+              style={{
+                padding: "16px",
+                background: "rgba(255, 255, 255, 0.02)",
+                border: "1px solid var(--border-subtle)",
+                borderRadius: "14px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "50%",
+                    background: "linear-gradient(135deg, #007aff, #0056b3)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 750,
+                    fontSize: "13px",
+                    color: "#ffffff",
+                  }}
+                >
+                  JD
+                </div>
+                <div>
+                  <p style={{ fontSize: "13.5px", fontWeight: 700, color: "#ffffff" }}>
+                    John Doe
+                  </p>
+                  <p style={{ fontSize: "11.5px", color: "var(--text-tertiary)" }}>
+                    john.doe.investor@example.com · Austin TX
+                  </p>
+                </div>
+              </div>
 
-          <div
-            className="card card-interactive"
-            style={{ cursor: "pointer" }}
-            onClick={() => setShowCreateCampaign(true)}
-          >
-            <div className="step-number" style={{ marginBottom: "var(--space-4)" }}>3</div>
-            <p style={{ fontWeight: 620, marginBottom: "var(--space-2)" }}>Create Campaign</p>
-            <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
-              Build sequenced emails with Gemini AI assistance.
-            </p>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 650,
+                  padding: "4px 8px",
+                  borderRadius: "100px",
+                  background: "rgba(99, 102, 241, 0.16)",
+                  color: "#a5b4fc",
+                }}
+              >
+                Ready
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -266,13 +476,19 @@ export default function DashboardPage() {
       <CreateCampaignModal
         isOpen={showCreateCampaign}
         onClose={() => setShowCreateCampaign(false)}
-        onSuccess={loadData}
+        onSuccess={() => {
+          setShowCreateCampaign(false);
+          loadData();
+        }}
       />
 
       <ImportCSVModal
         isOpen={showImportCSV}
         onClose={() => setShowImportCSV(false)}
-        onSuccess={loadData}
+        onSuccess={() => {
+          setShowImportCSV(false);
+          loadData();
+        }}
       />
     </div>
   );

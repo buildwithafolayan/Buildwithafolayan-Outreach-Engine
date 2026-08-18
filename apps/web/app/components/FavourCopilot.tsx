@@ -24,7 +24,7 @@ export default function FavourCopilot() {
     {
       role: "assistant",
       content:
-        "Greetings Favour. I am your outreach operations copilot. How can I assist with your campaigns, prospect pipelines, or follow-up strategy today?",
+        "Greetings Favour. I am your Apple Intelligence sales operations copilot. How can I optimize your campaigns, prospects, or outreach pipelines today?",
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -106,53 +106,54 @@ export default function FavourCopilot() {
     return (
       <button
         onClick={() => setIsOpen(true)}
+        className="ios-glass"
         style={{
           position: "fixed",
-          bottom: "24px",
-          right: "24px",
+          bottom: "28px",
+          right: "28px",
           zIndex: 900,
-          background: "linear-gradient(135deg, hsl(230 80% 55%), hsl(260 70% 50%))",
+          background: "rgba(18, 22, 34, 0.85)",
           color: "#ffffff",
-          border: "1px solid hsl(230 80% 70% / 0.3)",
           borderRadius: "100px",
-          padding: "12px 20px",
+          padding: "10px 18px",
           fontSize: "13px",
           fontWeight: 650,
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
           gap: "10px",
-          boxShadow: "0 12px 32px hsl(230 80% 45% / 0.4), 0 0 0 1px hsl(230 80% 60% / 0.2)",
-          transition: "transform 0.15s, box-shadow 0.15s",
+          boxShadow: "0 12px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
+          border: "1px solid rgba(255, 255, 255, 0.15)",
+          transition: "transform 0.2s var(--ease-spring), box-shadow 0.2s ease",
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
-        onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
-        title="Open Favour AI Copilot (Cmd+K)"
+        onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-3px) scale(1.02)")}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0) scale(1)")}
+        title="Open Favour Copilot (Cmd+K)"
       >
-        <span
+        {/* Apple Intelligence Aurora Orb */}
+        <div
+          className="apple-intelligence-glow animate-pulse-glow"
           style={{
             width: "22px",
             height: "22px",
             borderRadius: "50%",
-            background: "radial-gradient(circle, #ffffff, hsl(230 80% 85%))",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: "11px",
-            fontWeight: 800,
-            color: "hsl(230 80% 40%)",
+            boxShadow: "0 0 12px rgba(175, 82, 222, 0.6)",
           }}
         >
-          F
-        </span>
-        <span>Favour AI</span>
+          <span style={{ fontSize: "11px", fontWeight: 800, color: "#ffffff" }}>✦</span>
+        </div>
+        <span style={{ letterSpacing: "-0.01em" }}>Favour AI</span>
         <span
           style={{
             fontSize: "10px",
-            padding: "2px 6px",
-            borderRadius: "4px",
-            background: "hsl(0 0% 100% / 0.2)",
-            letterSpacing: "0.05em",
+            padding: "2px 7px",
+            borderRadius: "100px",
+            background: "rgba(255, 255, 255, 0.12)",
+            color: "var(--text-secondary)",
+            letterSpacing: "0.04em",
           }}
         >
           ⌘K
@@ -161,25 +162,25 @@ export default function FavourCopilot() {
     );
   }
 
-  // Panel Styling per Position
+  // Position Styling
   const getContainerStyle = (): React.CSSProperties => {
     switch (position) {
       case "fullscreen":
         return {
           position: "fixed",
-          inset: "20px",
+          inset: "24px",
           zIndex: 1000,
-          borderRadius: "16px",
+          borderRadius: "28px",
         };
       case "floating":
         return {
           position: "fixed",
-          bottom: "24px",
-          right: "24px",
+          bottom: "28px",
+          right: "28px",
           width: "440px",
-          height: "620px",
+          height: "640px",
           zIndex: 1000,
-          borderRadius: "16px",
+          borderRadius: "24px",
         };
       case "docked":
       default:
@@ -197,18 +198,20 @@ export default function FavourCopilot() {
 
   return (
     <div
+      className="ios-glass"
       style={{
         ...getContainerStyle(),
-        background: "hsl(220 30% 7% / 0.95)",
-        backdropFilter: "blur(24px)",
-        boxShadow: "0 24px 64px rgba(0, 0, 0, 0.7)",
+        background: "rgba(10, 14, 23, 0.88)",
+        backdropFilter: "blur(40px) saturate(200%)",
+        WebkitBackdropFilter: "blur(40px) saturate(200%)",
+        boxShadow: "0 28px 72px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.14)",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
-        border: position !== "docked" ? "1px solid var(--border-default)" : undefined,
+        border: position !== "docked" ? "1px solid var(--border-strong)" : undefined,
       }}
     >
-      {/* Copilot Header */}
+      {/* Header with Apple Intelligence Bar */}
       <div
         style={{
           padding: "16px 20px",
@@ -216,45 +219,43 @@ export default function FavourCopilot() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          background: "hsl(220 25% 10% / 0.6)",
+          background: "rgba(255, 255, 255, 0.02)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <div
+            className="apple-intelligence-glow"
             style={{
-              width: "28px",
-              height: "28px",
-              borderRadius: "8px",
-              background: "linear-gradient(135deg, hsl(230 80% 60%), hsl(260 70% 50%))",
+              width: "32px",
+              height: "32px",
+              borderRadius: "10px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "12px",
-              fontWeight: 800,
-              color: "#ffffff",
-              boxShadow: "0 4px 12px hsl(230 80% 50% / 0.4)",
+              boxShadow: "0 4px 16px rgba(175, 82, 222, 0.4)",
             }}
           >
-            F
+            <span style={{ fontSize: "14px", fontWeight: 800, color: "#ffffff" }}>✦</span>
           </div>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ fontSize: "14px", fontWeight: 700 }}>Favour</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ fontSize: "14px", fontWeight: 750 }}>Favour</span>
               <span
                 style={{
                   fontSize: "10px",
-                  padding: "1px 6px",
+                  padding: "2px 7px",
                   borderRadius: "100px",
-                  background: "hsl(160 70% 20%)",
-                  color: "hsl(160 80% 60%)",
-                  fontWeight: 600,
+                  background: "rgba(16, 185, 129, 0.16)",
+                  color: "#34d399",
+                  fontWeight: 650,
+                  border: "1px solid rgba(16, 185, 129, 0.25)",
                 }}
               >
-                Copilot Active
+                Intelligence Active
               </span>
             </div>
             <p style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>
-              Page context: {pathname === "/" ? "Dashboard" : pathname}
+              Context: {pathname === "/" ? "Dashboard" : pathname}
             </p>
           </div>
         </div>
@@ -262,10 +263,15 @@ export default function FavourCopilot() {
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           {/* Position Selector */}
           <button
-            className="btn btn-ghost"
-            style={{ padding: "4px 6px", fontSize: "11px" }}
+            className="btn btn-ghost btn-sm"
             onClick={() =>
-              setPosition(position === "docked" ? "floating" : position === "floating" ? "fullscreen" : "docked")
+              setPosition(
+                position === "docked"
+                  ? "floating"
+                  : position === "floating"
+                  ? "fullscreen"
+                  : "docked"
+              )
             }
             title={`Switch mode (currently ${position})`}
           >
@@ -281,7 +287,7 @@ export default function FavourCopilot() {
         </div>
       </div>
 
-      {/* Messages Scroll Area */}
+      {/* Messages Feed */}
       <div
         style={{
           flex: 1,
@@ -305,44 +311,54 @@ export default function FavourCopilot() {
             <div
               style={{
                 maxWidth: "88%",
-                padding: "12px 16px",
-                borderRadius: m.role === "user" ? "14px 14px 2px 14px" : "14px 14px 14px 2px",
+                padding: "14px 18px",
+                borderRadius: m.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
                 background:
                   m.role === "user"
-                    ? "linear-gradient(135deg, hsl(230 75% 55%), hsl(245 65% 50%))"
-                    : "hsl(220 25% 12%)",
-                border: m.role === "user" ? "none" : "1px solid var(--border-default)",
+                    ? "linear-gradient(135deg, #007aff, #5856d6)"
+                    : "rgba(255, 255, 255, 0.05)",
+                border:
+                  m.role === "user"
+                    ? "1px solid rgba(255, 255, 255, 0.2)"
+                    : "1px solid var(--border-default)",
                 color: "#ffffff",
-                fontSize: "13px",
-                lineHeight: 1.5,
+                fontSize: "13.5px",
+                lineHeight: 1.55,
                 whiteSpace: "pre-wrap",
-                boxShadow: m.role === "user" ? "0 4px 16px hsl(230 70% 45% / 0.25)" : undefined,
+                boxShadow:
+                  m.role === "user"
+                    ? "0 8px 20px rgba(0, 122, 255, 0.3)"
+                    : "inset 0 1px 0 rgba(255, 255, 255, 0.08)",
               }}
             >
               {m.content}
             </div>
 
-            {/* Render Tool Execution Badges if any */}
+            {/* Tool execution badge */}
             {m.toolCalls && m.toolCalls.length > 0 && (
               <div style={{ marginTop: "8px", display: "grid", gap: "4px", width: "100%" }}>
                 {m.toolCalls.map((tc, tIdx) => (
                   <div
                     key={tIdx}
                     style={{
-                      fontSize: "11px",
-                      padding: "4px 10px",
-                      background: "hsl(220 30% 10%)",
-                      border: "1px solid hsl(220 25% 18%)",
-                      borderRadius: "6px",
-                      color: "hsl(220 20% 70%)",
+                      fontSize: "11.5px",
+                      padding: "6px 12px",
+                      background: "rgba(99, 102, 241, 0.08)",
+                      border: "1px solid rgba(99, 102, 241, 0.2)",
+                      borderRadius: "8px",
+                      color: "var(--text-secondary)",
                       display: "flex",
                       alignItems: "center",
-                      gap: "6px",
+                      gap: "8px",
                     }}
                   >
-                    <span style={{ color: "var(--accent)" }}>⚡ Tool:</span>
-                    <code>{tc.name}</code>
-                    <span style={{ color: "var(--success)", marginLeft: "auto" }}>✓ completed</span>
+                    <span style={{ color: "var(--accent)", fontWeight: 700 }}>⚡ Tool:</span>
+                    <code style={{ fontFamily: "var(--font-mono)", color: "#ffffff" }}>
+                      {tc.name}
+                    </code>
+                    <span style={{ color: "var(--success)", marginLeft: "auto", fontWeight: 600 }}>
+                      ✓ completed
+                    </span>
                   </div>
                 ))}
               </div>
@@ -351,37 +367,41 @@ export default function FavourCopilot() {
         ))}
 
         {isLoading && (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--text-tertiary)", fontSize: "12px" }}>
-            <span
-              style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                background: "var(--accent)",
-                animation: "pulse 1.2s infinite",
-              }}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              color: "var(--text-secondary)",
+              fontSize: "12.5px",
+              padding: "8px 12px",
+              background: "rgba(255, 255, 255, 0.03)",
+              borderRadius: "10px",
+              width: "fit-content",
+            }}
+          >
+            <div
+              className="apple-intelligence-glow animate-pulse-glow"
+              style={{ width: "10px", height: "10px", borderRadius: "50%" }}
             />
-            Favour is analyzing system state & executing tools...
+            Favour is reasoning across database models...
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Quick Prompts */}
+      {/* Suggested Action Pills */}
       {messages.length <= 2 && (
-        <div style={{ padding: "0 20px 12px", display: "flex", gap: "6px", flexWrap: "wrap" }}>
+        <div style={{ padding: "0 20px 12px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
           {quickPrompts.map((qp, i) => (
             <button
               key={i}
-              className="btn btn-ghost"
+              className="btn btn-secondary btn-sm"
               style={{
-                fontSize: "11px",
-                padding: "4px 10px",
-                background: "hsl(220 25% 12%)",
-                border: "1px solid var(--border-subtle)",
+                fontSize: "11.5px",
+                padding: "6px 12px",
                 borderRadius: "100px",
-                color: "var(--text-secondary)",
               }}
               onClick={() => handleSend(qp)}
             >
@@ -391,12 +411,12 @@ export default function FavourCopilot() {
         </div>
       )}
 
-      {/* Input Form */}
+      {/* Input Field */}
       <div
         style={{
           padding: "16px 20px",
           borderTop: "1px solid var(--border-subtle)",
-          background: "hsl(220 25% 9% / 0.8)",
+          background: "rgba(0, 0, 0, 0.2)",
         }}
       >
         <form
@@ -404,12 +424,12 @@ export default function FavourCopilot() {
             e.preventDefault();
             handleSend();
           }}
-          style={{ display: "flex", gap: "8px" }}
+          style={{ display: "flex", gap: "10px" }}
         >
           <input
             type="text"
             className="input"
-            style={{ width: "100%", fontSize: "13px", padding: "10px 14px" }}
+            style={{ width: "100%", fontSize: "13.5px" }}
             placeholder="Ask Favour to analyze, pause, prioritize..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -418,7 +438,7 @@ export default function FavourCopilot() {
           <button
             type="submit"
             className="btn btn-primary"
-            style={{ padding: "0 16px" }}
+            style={{ padding: "0 18px" }}
             disabled={isLoading || !input.trim()}
           >
             Send

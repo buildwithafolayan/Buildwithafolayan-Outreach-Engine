@@ -3,7 +3,6 @@
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import StatusBadge from "../../components/StatusBadge";
-import Card from "../../components/Card";
 import AIPersonalizeModal from "@/app/components/AIPersonalizeModal";
 
 interface Contact {
@@ -48,7 +47,7 @@ export default function ContactDetailPage({
 
   if (!contact && !loading) {
     return (
-      <div className="animate-in" style={{ padding: "40px 0" }}>
+      <div style={{ padding: "40px 0" }}>
         <p>Contact not found.</p>
         <Link href="/contacts" className="btn btn-secondary" style={{ marginTop: "16px" }}>
           ← Back to Contacts
@@ -77,43 +76,47 @@ export default function ContactDetailPage({
   const timeline = [
     {
       icon: "📩",
-      dotClass: "dot-success",
       event: currentContact.state === "REPLIED" ? "Positive reply received" : "Contact added to database",
       meta: currentContact.state === "REPLIED" ? "Sequence paused automatically — awaiting manual follow-up" : "Ready for campaign enrollment",
       time: currentContact.lastActivity || "Recently",
+      badgeColor: "rgba(16, 185, 129, 0.2)",
     },
     {
-      icon: "🤖",
-      dotClass: "dot-info",
+      icon: "✦",
       event: "Gemini AI Profile Ready",
       meta: "Contextual hook and value proposition ready to personalize.",
       time: "Active",
+      badgeColor: "rgba(99, 102, 241, 0.2)",
     },
     {
-      icon: "⬆️",
-      dotClass: "",
-      event: `Imported via ${currentContact.source || "Manual Entry"}`,
+      icon: "📄",
+      event: `Imported via ${currentContact.source || "CSV Import"}`,
       meta: `Email verified: ${currentContact.email}`,
       time: "Initial",
+      badgeColor: "rgba(255, 255, 255, 0.1)",
     },
   ];
 
   return (
-    <div className="animate-in">
+    <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
       {/* Breadcrumb */}
-      <p className="page-eyebrow" style={{ marginBottom: "var(--space-6)" }}>
-        <Link href="/contacts" style={{ color: "var(--text-tertiary)" }}>
+      <div className="page-eyebrow">
+        <Link href="/contacts" style={{ color: "var(--text-tertiary)", textDecoration: "none" }}>
           Contacts
         </Link>
-        <span style={{ margin: "0 8px", color: "var(--text-muted)" }}>/</span>
-        <span>{currentContact.firstName} {currentContact.lastName}</span>
-      </p>
+        <span style={{ color: "var(--text-tertiary)" }}>/</span>
+        <span style={{ color: "#ffffff" }}>
+          {currentContact.firstName} {currentContact.lastName}
+        </span>
+      </div>
 
       {/* Header */}
-      <div className="page-header" style={{ marginBottom: "var(--space-8)" }}>
+      <div className="page-header" style={{ marginBottom: "8px" }}>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-2)" }}>
-            <h1 className="page-title">{currentContact.firstName} {currentContact.lastName}</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
+            <h1 className="page-title">
+              {currentContact.firstName} {currentContact.lastName}
+            </h1>
             <StatusBadge status={currentContact.state} />
           </div>
           <p className="page-description">
@@ -122,105 +125,107 @@ export default function ContactDetailPage({
             {currentContact.city ? ` · ${currentContact.city}` : ""}
           </p>
         </div>
-        <div className="page-actions" style={{ display: "flex", gap: "var(--space-2)" }}>
-          <a
-            href="#ai-personalize-section"
-            className="btn btn-primary"
-          >
-            ✨ AI Personalize Email
+        <div style={{ display: "flex", gap: "10px" }}>
+          <a href="#ai-personalize-section" className="btn btn-primary">
+            ✦ AI Personalize Email
           </a>
         </div>
       </div>
 
-      {/* Grid: Details & Timeline */}
-      <div className="grid-2" style={{ gap: "var(--space-6)", alignItems: "start" }}>
-        {/* Left: Contact Info */}
-        <div style={{ display: "grid", gap: "var(--space-4)" }}>
-          <Card>
-            <h3 style={{ fontSize: "14px", fontWeight: 650, marginBottom: "var(--space-4)" }}>
-              Contact Details
+      {/* Two Column Grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "24px", alignItems: "start" }}>
+        {/* Left Column: Contact info & context */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div className="ios-glass" style={{ padding: "24px" }}>
+            <h3 style={{ fontSize: "15px", fontWeight: 750, color: "#ffffff", marginBottom: "16px" }}>
+              Prospect Profile
             </h3>
-            <div style={{ display: "grid", gap: "var(--space-3)", fontSize: "13px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", fontSize: "13px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "8px" }}>
                 <span style={{ color: "var(--text-tertiary)" }}>Email</span>
-                <span style={{ color: "var(--accent)" }}>{currentContact.email}</span>
+                <span style={{ color: "var(--accent)", fontWeight: 600 }}>{currentContact.email}</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "8px" }}>
                 <span style={{ color: "var(--text-tertiary)" }}>Company</span>
-                <span>{currentContact.company}</span>
+                <span style={{ color: "#ffffff", fontWeight: 600 }}>{currentContact.company}</span>
               </div>
-              {currentContact.website && (
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: "var(--text-tertiary)" }}>Website</span>
-                  <span>{currentContact.website}</span>
-                </div>
-              )}
               {currentContact.city && (
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "8px" }}>
                   <span style={{ color: "var(--text-tertiary)" }}>Location</span>
                   <span>{currentContact.city}</span>
                 </div>
               )}
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--text-tertiary)" }}>Source</span>
+                <span style={{ color: "var(--text-tertiary)" }}>Lead Source</span>
                 <span>{currentContact.source}</span>
               </div>
             </div>
-          </Card>
+          </div>
 
-          {/* Personalization Notes */}
-          <Card>
-            <h3 style={{ fontSize: "14px", fontWeight: 650, marginBottom: "var(--space-2)" }}>
-              Notes / Context
+          <div className="ios-glass" style={{ padding: "24px" }}>
+            <h3 style={{ fontSize: "15px", fontWeight: 750, color: "#ffffff", marginBottom: "10px" }}>
+              Context & Background Notes
             </h3>
-            <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
-              {currentContact.notes || "No additional notes provided for this contact."}
+            <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.6 }}>
+              {currentContact.notes || "No additional notes provided for this prospect."}
             </p>
-            {currentContact.tags?.length > 0 && (
-              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginTop: "var(--space-3)" }}>
-                {currentContact.tags.map((t) => (
-                  <span
-                    key={t}
-                    style={{
-                      fontSize: "11px",
-                      background: "var(--bg-tertiary)",
-                      padding: "2px 8px",
-                      borderRadius: "4px",
-                      color: "var(--text-secondary)",
-                    }}
-                  >
-                    #{t}
-                  </span>
-                ))}
-              </div>
-            )}
-          </Card>
+          </div>
         </div>
 
-        {/* Right: Conversation Timeline */}
-        <Card>
-          <h3 style={{ fontSize: "14px", fontWeight: 650, marginBottom: "var(--space-4)" }}>
-            Outreach History & Events
+        {/* Right Column: Activity Timeline */}
+        <div className="ios-glass" style={{ padding: "24px" }}>
+          <h3 style={{ fontSize: "15px", fontWeight: 750, color: "#ffffff", marginBottom: "16px" }}>
+            Outreach History & Sequence Activity
           </h3>
-          <div className="timeline">
-            {timeline.map(({ icon, dotClass, event, meta, time }) => (
-              <div className="timeline-item" key={event}>
-                <div className={`timeline-dot ${dotClass}`}>{icon}</div>
-                <div className="timeline-content">
-                  <p className="timeline-event">{event}</p>
-                  <p className="timeline-meta">{meta}</p>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {timeline.map((item, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "12px",
+                  padding: "12px 14px",
+                  background: "rgba(255, 255, 255, 0.02)",
+                  borderRadius: "12px",
+                  border: "1px solid var(--border-subtle)",
+                }}
+              >
+                <div
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "8px",
+                    background: item.badgeColor,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "14px",
+                    flexShrink: 0,
+                  }}
+                >
+                  {item.icon}
                 </div>
-                <span style={{ fontSize: "12px", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
-                  {time}
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>
+                    {item.event}
+                  </p>
+                  <p style={{ fontSize: "11.5px", color: "var(--text-tertiary)", marginTop: "2px" }}>
+                    {item.meta}
+                  </p>
+                </div>
+                <span style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>
+                  {item.time}
                 </span>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* AI Personalization Assistant */}
-      <div id="ai-personalize-section" style={{ marginTop: "var(--space-8)" }}>
+      <div id="ai-personalize-section">
         <AIPersonalizeModal
           contact={{
             firstName: currentContact.firstName,
