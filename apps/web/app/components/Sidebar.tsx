@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,6 +15,22 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [globalSending, setGlobalSending] = useState(false);
+  const [hasGmail, setHasGmail] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/settings").then((r) => r.json()).catch(() => ({})),
+      fetch("/api/gmail/account").then((r) => r.json()).catch(() => ({})),
+    ]).then(([setData, accData]) => {
+      if (setData?.settings) {
+        setGlobalSending(setData.settings.globalSendingEnabled);
+      }
+      if (accData?.account) {
+        setHasGmail(true);
+      }
+    });
+  }, [pathname]);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -44,10 +61,23 @@ export default function Sidebar() {
 
       <div className="sidebar-footer">
         <div className="sidebar-status">
-          <span className="sidebar-status-dot paused" />
-          <span>Global sending paused</span>
+          <span
+            className={`sidebar-status-dot${
+              globalSending ? " active" : " paused"
+            }`}
+            style={{
+              background: globalSending ? "var(--success)" : "var(--warning)",
+            }}
+          />
+          <span>
+            {globalSending
+              ? "Global sending active"
+              : hasGmail
+              ? "Gmail ready (paused)"
+              : "Global sending paused"}
+          </span>
         </div>
-        <div className="sidebar-env">Foundation · development</div>
+        <div className="sidebar-env">Private Outreach Engine · Live</div>
       </div>
     </aside>
   );

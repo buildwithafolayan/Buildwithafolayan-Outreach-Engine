@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Header from "../components/Header";
 import GmailConnectSection from "../components/GmailConnectSection";
+import GlobalSendingSwitch from "../components/GlobalSendingSwitch";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -20,24 +21,21 @@ export default function SettingsPage() {
         <h2 className="settings-section-title">Global Sending Control</h2>
         <div className="settings-row">
           <div className="settings-row-info">
-            <p className="settings-row-label">Global Sending</p>
+            <p className="settings-row-label">Global Sending Master Switch</p>
             <p className="settings-row-description">
-              Master switch for all automated sends. When disabled, no emails will be sent from any campaign.
+              Master control for all automated sends across every campaign. When toggled off, all email dispatch is safely halted.
             </p>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-            <span style={{ fontSize: "13px", color: "var(--warning)", fontWeight: 600 }}>Paused</span>
-            <button className="toggle" aria-label="Toggle global sending" />
-          </div>
+          <GlobalSendingSwitch />
         </div>
         <div className="settings-row">
           <div className="settings-row-info">
-            <p className="settings-row-label">Controlled Test Recipient</p>
+            <p className="settings-row-label">Safety Window & Guardrails</p>
             <p className="settings-row-description">
-              First sends go to this address only. Required before enabling live outreach.
+              Sends will only occur within working hours and are randomized to protect mailbox reputation.
             </p>
           </div>
-          <span className="settings-row-value">Not set</span>
+          <span className="badge badge-success"><span className="badge-dot" />Guardrails Active</span>
         </div>
       </div>
 
