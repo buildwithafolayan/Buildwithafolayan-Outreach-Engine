@@ -15,7 +15,7 @@ function getAppSecret(): string {
 }
 
 export function getAdminPassword(): string {
-  return process.env.ADMIN_PASSWORD || process.env.APP_SECRET || "admin123";
+  return process.env.ADMIN_PASSWORD || "favour2026!";
 }
 
 /**

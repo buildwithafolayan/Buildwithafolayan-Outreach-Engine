@@ -24,42 +24,61 @@ export default function ImportCSVModal({ isOpen, onClose, onSuccess }: ImportCSV
   if (!isOpen) return null;
 
   const parseCSVText = (text: string) => {
-    const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-    if (lines.length === 0) return;
+    // Robust RFC 4180 CSV parser supporting quotes, commas, and linebreaks
+    const rows: string[][] = [];
+    let currentRow: string[] = [];
+    let currentCell = "";
+    let insideQuotes = false;
 
-    // Simple CSV parser supporting quotes
-    const parseLine = (line: string) => {
-      const result: string[] = [];
-      let cur = "";
-      let inQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const c = line[i];
-        if (c === '"') {
-          inQuotes = !inQuotes;
-        } else if (c === "," && !inQuotes) {
-          result.push(cur.trim());
-          cur = "";
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const nextChar = text[i + 1];
+
+      if (char === '"') {
+        if (insideQuotes && nextChar === '"') {
+          currentCell += '"';
+          i++; // Skip escaped quote
         } else {
-          cur += c;
+          insideQuotes = !insideQuotes;
         }
+      } else if (char === "," && !insideQuotes) {
+        currentRow.push(currentCell.trim());
+        currentCell = "";
+      } else if ((char === "\r" || char === "\n") && !insideQuotes) {
+        if (char === "\r" && nextChar === "\n") i++;
+        currentRow.push(currentCell.trim());
+        if (currentRow.some((c) => c.length > 0)) {
+          rows.push(currentRow);
+        }
+        currentRow = [];
+        currentCell = "";
+      } else {
+        currentCell += char;
       }
-      result.push(cur.trim());
-      return result;
-    };
+    }
+    if (currentCell || currentRow.length > 0) {
+      currentRow.push(currentCell.trim());
+      if (currentRow.some((c) => c.length > 0)) {
+        rows.push(currentRow);
+      }
+    }
 
-    const headerRow = parseLine(lines[0]);
+    if (rows.length < 2) return;
+
+    const headerRow = rows[0].map((h) => h.replace(/^["']|["']$/g, "").trim());
     setHeaders(headerRow);
 
-    const rows: Array<Record<string, string>> = [];
-    for (let i = 1; i < lines.length; i++) {
-      const values = parseLine(lines[i]);
-      const rowObj: Record<string, string> = {};
-      headerRow.forEach((h, idx) => {
-        rowObj[h] = values[idx] || "";
+    const parsedObjects: Array<Record<string, string>> = [];
+    for (let r = 1; r < rows.length; r++) {
+      const rowValues = rows[r];
+      const obj: Record<string, string> = {};
+      headerRow.forEach((hdr, idx) => {
+        obj[hdr] = rowValues[idx] || "";
       });
-      rows.push(rowObj);
+      parsedObjects.push(obj);
     }
-    setParsedRows(rows);
+
+    setParsedRows(parsedObjects);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,7 +126,7 @@ export default function ImportCSVModal({ isOpen, onClose, onSuccess }: ImportCSV
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0, 0, 0, 0.75)",
+        background: "rgba(0, 0, 0, 0.8)",
         backdropFilter: "blur(8px)",
         display: "flex",
         alignItems: "center",
@@ -138,7 +157,7 @@ export default function ImportCSVModal({ isOpen, onClose, onSuccess }: ImportCSV
             <div>
               <h3 style={{ fontSize: "16px", fontWeight: 700 }}>Import Contacts from CSV</h3>
               <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-                Upload a CSV file containing your B2B prospect targets
+                Upload any CSV prospect list (Apollo, Instantly, LinkedIn, Custom lists)
               </p>
             </div>
             <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
@@ -148,12 +167,13 @@ export default function ImportCSVModal({ isOpen, onClose, onSuccess }: ImportCSV
           <div
             style={{
               border: "2px dashed var(--border-default)",
-              borderRadius: "8px",
+              borderRadius: "10px",
               padding: "28px",
               textAlign: "center",
               background: "var(--bg-tertiary)",
               marginBottom: "var(--space-4)",
               cursor: "pointer",
+              transition: "border-color 0.2s",
             }}
             onClick={() => document.getElementById("csv-file-input")?.click()}
           >
@@ -164,42 +184,76 @@ export default function ImportCSVModal({ isOpen, onClose, onSuccess }: ImportCSV
               style={{ display: "none" }}
               onChange={handleFileChange}
             />
-            <div style={{ fontSize: "28px", marginBottom: "8px" }}>📄</div>
+            <div style={{ fontSize: "32px", marginBottom: "8px" }}>📄</div>
             <p style={{ fontSize: "14px", fontWeight: 600, marginBottom: "4px" }}>
               {file ? file.name : "Click or drag CSV file here to upload"}
             </p>
             <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-              Supported columns: <code>first_name</code>, <code>last_name</code>, <code>email</code>, <code>company</code>, <code>industry</code>
+              Auto-maps: <code>Full Name</code>, <code>First/Last Name</code>, <code>Email Address</code>, <code>Company</code>, <code>City/State</code>, <code>Notes</code>
             </p>
           </div>
 
-          {/* Sample CSV preview */}
-          {parsedRows.length > 0 && (
+          {/* CSV Preview */}
+          {parsedRows.length > 0 && !result?.importedCount && (
             <div style={{ marginBottom: "var(--space-4)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 600 }}>
-                  Detected {parsedRows.length} rows ({headers.join(", ")})
-                </span>
-              </div>
               <div
                 style={{
-                  maxHeight: "150px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "8px",
+                }}
+              >
+                <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 600 }}>
+                  Ready to Import: {parsedRows.length} Prospects Detected
+                </span>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    padding: "2px 8px",
+                    borderRadius: "100px",
+                    background: "hsl(220 20% 16%)",
+                    color: "hsl(220 15% 70%)",
+                  }}
+                >
+                  {headers.length} columns detected
+                </span>
+              </div>
+
+              <div
+                style={{
+                  maxHeight: "160px",
                   overflowY: "auto",
                   background: "var(--bg-primary)",
-                  padding: "10px",
-                  borderRadius: "6px",
+                  border: "1px solid var(--border-subtle)",
+                  padding: "10px 14px",
+                  borderRadius: "8px",
                   fontSize: "12px",
                   fontFamily: "var(--font-mono)",
                 }}
               >
-                {parsedRows.slice(0, 4).map((r, i) => (
-                  <div key={i} style={{ borderBottom: "1px solid var(--border-subtle)", padding: "4px 0" }}>
-                    {Object.values(r).slice(0, 4).join(" · ")}
+                {parsedRows.slice(0, 5).map((r, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      borderBottom: i < 4 ? "1px solid var(--border-subtle)" : "none",
+                      padding: "6px 0",
+                      color: "var(--text-secondary)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {Object.entries(r)
+                      .filter(([_, v]) => Boolean(v))
+                      .slice(0, 4)
+                      .map(([k, v]) => `${k}: ${v}`)
+                      .join(" · ")}
                   </div>
                 ))}
-                {parsedRows.length > 4 && (
-                  <div style={{ color: "var(--text-muted)", paddingTop: "4px" }}>
-                    + {parsedRows.length - 4} more rows...
+                {parsedRows.length > 5 && (
+                  <div style={{ color: "var(--text-muted)", paddingTop: "6px", fontSize: "11px" }}>
+                    + {parsedRows.length - 5} more rows ready to import...
                   </div>
                 )}
               </div>
@@ -210,36 +264,44 @@ export default function ImportCSVModal({ isOpen, onClose, onSuccess }: ImportCSV
           {result && (
             <div
               style={{
-                padding: "12px 16px",
-                borderRadius: "8px",
+                padding: "14px 18px",
+                borderRadius: "10px",
                 fontSize: "13px",
                 marginBottom: "var(--space-4)",
-                background: result.error ? "var(--danger-soft)" : "var(--success-soft)",
-                color: result.error ? "var(--danger)" : "var(--success)",
+                background: result.error ? "var(--danger-soft)" : "hsl(160 80% 12% / 0.7)",
+                border: `1px solid ${result.error ? "var(--danger)" : "hsl(160 80% 25%)"}`,
+                color: result.error ? "var(--danger)" : "hsl(160 80% 70%)",
               }}
             >
               {result.error ? (
                 <p>✕ {result.error}</p>
               ) : (
-                <p>
-                  ✓ Successfully imported <strong>{result.importedCount}</strong> new contacts!
-                  {result.duplicatesSkipped ? ` (${result.duplicatesSkipped} duplicates skipped)` : ""}
-                </p>
+                <div>
+                  <p style={{ fontWeight: 650, fontSize: "14px", marginBottom: "4px" }}>
+                    ✓ Successfully imported {result.importedCount} new contacts!
+                  </p>
+                  <p style={{ fontSize: "12px", opacity: 0.9 }}>
+                    {result.duplicatesSkipped ? `${result.duplicatesSkipped} duplicates already existed. ` : ""}
+                    {result.invalidSkipped ? `${result.invalidSkipped} invalid rows skipped.` : ""}
+                  </p>
+                </div>
               )}
             </div>
           )}
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--space-3)" }}>
             <button className="btn btn-secondary" onClick={onClose}>
-              {result?.importedCount ? "Close" : "Cancel"}
+              {result?.importedCount ? "Done" : "Cancel"}
             </button>
-            <button
-              className="btn btn-primary"
-              onClick={handleImport}
-              disabled={parsedRows.length === 0 || isProcessing}
-            >
-              {isProcessing ? "Importing..." : `Import ${parsedRows.length || 0} Contacts`}
-            </button>
+            {!result?.importedCount && (
+              <button
+                className="btn btn-primary"
+                onClick={handleImport}
+                disabled={parsedRows.length === 0 || isProcessing}
+              >
+                {isProcessing ? "Importing Prospects..." : `Import ${parsedRows.length || 0} Contacts`}
+              </button>
+            )}
           </div>
         </Card>
       </div>
