@@ -21,12 +21,12 @@ export interface FavourMessage {
   content: string;
   toolCalls?: Array<{
     name: string;
-    args: Record<string, any>;
-    result?: any;
+    args: Record<string, unknown>;
+    result?: unknown;
   }>;
   widgets?: Array<{
     type: "lead_cards" | "metric_cards" | "action_confirm" | "campaign_card";
-    data: any;
+    data: unknown;
   }>;
 }
 
@@ -219,7 +219,7 @@ ASSISTANT (Favour):`;
     const responseText = response.text || "I have analyzed your request.";
 
     // Tool calling parser: Check if Favour wants to run tools
-    const toolExecutions: Array<{ name: string; args: any; result: any }> = [];
+    const toolExecutions: Array<{ name: string; args: Record<string, unknown>; result: unknown }> = [];
 
     // Simple heuristic / keyword tool execution if user asked for overview or hot leads
     const lastUserMsg = params.messages[params.messages.length - 1]?.content.toLowerCase() || "";

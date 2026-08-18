@@ -8,8 +8,8 @@ interface Message {
   content: string;
   toolCalls?: Array<{
     name: string;
-    args: Record<string, any>;
-    result?: any;
+    args: Record<string, unknown>;
+    result?: unknown;
   }>;
 }
 

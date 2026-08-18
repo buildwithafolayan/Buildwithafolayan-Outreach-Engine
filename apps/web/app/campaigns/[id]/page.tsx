@@ -3,7 +3,6 @@
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import StatusBadge from "../../components/StatusBadge";
-import Card from "../../components/Card";
 import EnrollContactsModal from "@/app/components/EnrollContactsModal";
 import AISequenceGenerator from "@/app/components/AISequenceGenerator";
 

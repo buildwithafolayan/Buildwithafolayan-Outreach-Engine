@@ -31,7 +31,6 @@ export default function ContactDetailPage({
   const { id } = use(params);
   const [contact, setContact] = useState<Contact | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showPersonalizeModal, setShowPersonalizeModal] = useState(false);
 
   useEffect(() => {
     fetch("/api/contacts")

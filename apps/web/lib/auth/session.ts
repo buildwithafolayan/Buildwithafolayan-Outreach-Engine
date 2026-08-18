@@ -23,11 +23,6 @@ export function getAdminPassword(): string {
  */
 export function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) {
-    // Continue loop to disguise length mismatch timing
-    let diff = 1;
-    for (let i = 0; i < a.length; i++) {
-      diff |= a.charCodeAt(i) ^ a.charCodeAt(i);
-    }
     return false;
   }
 
@@ -167,7 +162,7 @@ export async function verifySessionToken(
     }
 
     return { valid: true, payload };
-  } catch (error) {
+  } catch {
     return { valid: false };
   }
 }
