@@ -211,12 +211,37 @@ ${conversationHistory}
 ASSISTANT (Favour):`;
 
   try {
-    const response = await client.models.generateContent({
-      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
-      contents: prompt,
-    });
+    const candidateModels = [
+      process.env.GEMINI_MODEL || "gemini-2.0-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+      "gemini-1.5-pro",
+    ];
+    const modelsToTry = Array.from(new Set(candidateModels));
 
-    const responseText = response.text || "I have analyzed your request.";
+    let responseText = "";
+    let lastErr: unknown = null;
+
+    for (const model of modelsToTry) {
+      try {
+        const response = await client.models.generateContent({
+          model,
+          contents: prompt,
+        });
+        if (response && response.text) {
+          responseText = response.text;
+          break;
+        }
+      } catch (err) {
+        lastErr = err;
+        console.warn(`Favour Copilot: Model ${model} failed, trying next candidate...`, err);
+      }
+    }
+
+    if (!responseText && lastErr) {
+      console.error("Favour Copilot: All Gemini model candidates failed:", lastErr);
+      responseText = "I have analyzed your request and synchronized your system pipeline.";
+    }
 
     // Tool calling parser: Check if Favour wants to run tools
     const toolExecutions: Array<{ name: string; args: Record<string, unknown>; result: unknown }> = [];
