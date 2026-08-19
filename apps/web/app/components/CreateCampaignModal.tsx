@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Card from "./Card";
+import { Sparkles, X, Send, Clock } from "lucide-react";
 
 interface CreateCampaignModalProps {
   isOpen: boolean;
@@ -14,8 +14,8 @@ export default function CreateCampaignModal({ isOpen, onClose, onSuccess }: Crea
   const [description, setDescription] = useState("");
   const [dailyLimit, setDailyLimit] = useState(20);
   const [hourlyLimit, setHourlyLimit] = useState(5);
-  const [audience, setAudience] = useState("VP of Engineering & Tech Leaders");
-  const [product, setProduct] = useState("B2B developer platform");
+  const [audience, setAudience] = useState("Tech Founders & VP Engineering");
+  const [product, setProduct] = useState("B2B Developer Infrastructure");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [steps, setSteps] = useState<Array<{
@@ -28,7 +28,7 @@ export default function CreateCampaignModal({ isOpen, onClose, onSuccess }: Crea
     {
       number: 1,
       subject: "Helping {{company}} scale faster",
-      bodyText: "Hi {{first_name}},\n\nI noticed {{company}} is growing its tech stack...",
+      bodyText: "Hi {{first_name}},\n\nI noticed {{company}} is scaling engineering...",
       delayDays: 0,
       delayDescription: "Immediate",
     },
@@ -109,170 +109,190 @@ export default function CreateCampaignModal({ isOpen, onClose, onSuccess }: Crea
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0, 0, 0, 0.75)",
-        backdropFilter: "blur(8px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1000,
-        padding: "20px",
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          maxWidth: "750px",
-          width: "100%",
-          maxHeight: "90vh",
-          overflowY: "auto",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Card glass>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "var(--space-4)",
-            }}
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-dialog" style={{ maxWidth: "640px" }} onClick={(e) => e.stopPropagation()}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "18px",
+          }}
+        >
+          <div>
+            <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>
+              Create Campaign Sequence
+            </h3>
+            <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
+              Configure multi-step email cadences with AI copywriting
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={onClose}
+            style={{ padding: "4px" }}
           >
-            <div>
-              <h3 style={{ fontSize: "16px", fontWeight: 700 }}>Create New Campaign</h3>
-              <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-                Set up a sequenced cold outreach campaign with step-by-step follow-ups
-              </p>
-            </div>
-            <button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button>
+            <X size={14} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          <div>
+            <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "4px" }}>
+              Campaign Name *
+            </label>
+            <input
+              type="text"
+              className="input"
+              placeholder="e.g. Q4 Executive Outreach"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: "grid", gap: "var(--space-4)" }}>
+          <div>
+            <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "4px" }}>
+              Objective / Notes
+            </label>
+            <input
+              type="text"
+              className="input"
+              placeholder="e.g. Outreach to early-stage CTOs"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
             <div>
-              <label className="input-label" style={{ marginBottom: "4px", display: "block" }}>
-                Campaign Name *
+              <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "4px" }}>
+                Daily Send Limit
               </label>
               <input
-                type="text"
+                type="number"
                 className="input"
-                style={{ width: "100%" }}
-                placeholder="e.g. Q4 Fintech Founders Outreach"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
+                value={dailyLimit}
+                onChange={(e) => setDailyLimit(Number(e.target.value))}
               />
             </div>
-
             <div>
-              <label className="input-label" style={{ marginBottom: "4px", display: "block" }}>
-                Description / Objective
+              <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "4px" }}>
+                Hourly Send Limit
               </label>
               <input
-                type="text"
+                type="number"
                 className="input"
-                style={{ width: "100%" }}
-                placeholder="e.g. Outreach to mid-stage SaaS executives for our new API"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                value={hourlyLimit}
+                onChange={(e) => setHourlyLimit(Number(e.target.value))}
               />
             </div>
+          </div>
 
-            <div className="grid-2">
-              <div>
-                <label className="input-label" style={{ marginBottom: "4px", display: "block" }}>
-                  Daily Send Limit
-                </label>
-                <input
-                  type="number"
-                  className="input"
-                  style={{ width: "100%" }}
-                  value={dailyLimit}
-                  onChange={(e) => setDailyLimit(Number(e.target.value))}
-                />
-              </div>
-              <div>
-                <label className="input-label" style={{ marginBottom: "4px", display: "block" }}>
-                  Hourly Send Limit
-                </label>
-                <input
-                  type="number"
-                  className="input"
-                  style={{ width: "100%" }}
-                  value={hourlyLimit}
-                  onChange={(e) => setHourlyLimit(Number(e.target.value))}
-                />
-              </div>
-            </div>
-
-            {/* AI Sequence Generation Box */}
-            <div style={{ background: "var(--bg-tertiary)", padding: "16px", borderRadius: "8px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 650, color: "var(--accent)" }}>
-                  ✨ Gemini AI Step Generator
+          {/* AI Generator Box */}
+          <div
+            style={{
+              backgroundColor: "var(--bg-surface-elevated)",
+              border: "1px solid var(--border-default)",
+              borderRadius: "var(--radius-sm)",
+              padding: "14px",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <Sparkles size={14} strokeWidth={2} style={{ color: "var(--accent)" }} />
+                <span style={{ fontSize: "12.5px", fontWeight: 650, color: "var(--text-primary)" }}>
+                  Gemini AI Sequence Generator
                 </span>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ fontSize: "12px", padding: "4px 10px" }}
-                  onClick={handleGenerateAI}
-                  disabled={isGenerating}
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={handleGenerateAI}
+                disabled={isGenerating}
+              >
+                {isGenerating ? "Generating..." : "Generate 4 Steps"}
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "10px" }}>
+              <div>
+                <label style={{ fontSize: "11px", color: "var(--text-tertiary)", display: "block", marginBottom: "2px" }}>Target Audience</label>
+                <input
+                  type="text"
+                  className="input"
+                  style={{ fontSize: "12px", padding: "6px 10px" }}
+                  value={audience}
+                  onChange={(e) => setAudience(e.target.value)}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: "11px", color: "var(--text-tertiary)", display: "block", marginBottom: "2px" }}>Product / Offer</label>
+                <input
+                  type="text"
+                  className="input"
+                  style={{ fontSize: "12px", padding: "6px 10px" }}
+                  value={product}
+                  onChange={(e) => setProduct(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Generated Steps Preview */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              {steps.map((s) => (
+                <div
+                  key={s.number}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    padding: "8px 10px",
+                    backgroundColor: "var(--bg-surface)",
+                    borderRadius: "var(--radius-xs)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
                 >
-                  {isGenerating ? "Generating..." : "Generate 4 Steps with Gemini"}
-                </button>
-              </div>
-
-              <div className="grid-2" style={{ marginBottom: "8px" }}>
-                <div>
-                  <label style={{ fontSize: "11px", color: "var(--text-tertiary)", display: "block" }}>Audience</label>
-                  <input
-                    type="text"
-                    className="input"
-                    style={{ width: "100%", fontSize: "12px" }}
-                    value={audience}
-                    onChange={(e) => setAudience(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: "11px", color: "var(--text-tertiary)", display: "block" }}>Product / Offer</label>
-                  <input
-                    type="text"
-                    className="input"
-                    style={{ width: "100%", fontSize: "12px" }}
-                    value={product}
-                    onChange={(e) => setProduct(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Steps list */}
-              <div style={{ display: "grid", gap: "8px", marginTop: "12px" }}>
-                {steps.map((s) => (
-                  <div key={s.number} className="step-card" style={{ padding: "10px" }}>
-                    <div className="step-number" style={{ width: "24px", height: "24px", fontSize: "12px" }}>
-                      {s.number}
-                    </div>
-                    <div className="step-content">
-                      <p className="step-subject" style={{ fontSize: "13px" }}>{s.subject}</p>
-                      <p className="step-delay" style={{ fontSize: "11px" }}>{s.delayDescription}</p>
-                    </div>
+                  <span
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      borderRadius: "var(--radius-xs)",
+                      backgroundColor: "var(--bg-surface-elevated)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                      fontFamily: "var(--font-mono)",
+                    }}
+                  >
+                    {s.number}
+                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {s.subject}
+                    </p>
                   </div>
-                ))}
-              </div>
+                  <span style={{ fontSize: "10.5px", color: "var(--text-muted)", flexShrink: 0 }}>
+                    {s.delayDescription}
+                  </span>
+                </div>
+              ))}
             </div>
+          </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--space-3)" }}>
-              <button type="button" className="btn btn-secondary" onClick={onClose}>
-                Cancel
-              </button>
-              <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create Campaign"}
-              </button>
-            </div>
-          </form>
-        </Card>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "6px" }}>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? "Creating..." : "Create Campaign"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

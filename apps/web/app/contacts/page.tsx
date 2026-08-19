@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Search, Plus, UploadCloud, Mail, MapPin, Building, Users } from "lucide-react";
 import Header from "../components/Header";
 import StatusBadge from "../components/StatusBadge";
 import EmptyState from "../components/EmptyState";
@@ -26,14 +27,6 @@ interface Contact {
 }
 
 const filters = ["All", "Ready", "Enrolled", "Replied", "Completed"];
-
-const avatarGradients = [
-  "linear-gradient(135deg, #007aff, #5856d6)",
-  "linear-gradient(135deg, #00c7be, #009688)",
-  "linear-gradient(135deg, #af52de, #7c3aed)",
-  "linear-gradient(135deg, #ff9500, #ea580c)",
-  "linear-gradient(135deg, #ff2d55, #c2185b)",
-];
 
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -75,36 +68,36 @@ export default function ContactsPage() {
   });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       <Header
         eyebrow="Target Directory"
-        title="Prospects & Leads"
-        description="Manage B2B targets, import CSV lists, and trigger Gemini AI bespoke personalization."
+        title="Prospects"
+        description="Target contact list with AI personalization triggers and sequence state."
         actions={
-          <div style={{ display: "flex", gap: "10px" }}>
+          <>
             <button
+              type="button"
               className="btn btn-secondary"
               onClick={() => setShowImportModal(true)}
             >
-              <span>📄</span>
+              <UploadCloud size={14} strokeWidth={1.75} />
               <span>Import CSV</span>
             </button>
             <button
+              type="button"
               className="btn btn-primary"
               onClick={() => setShowAddModal(true)}
             >
-              <span>+</span>
+              <Plus size={14} strokeWidth={2} />
               <span>Add Contact</span>
             </button>
-          </div>
+          </>
         }
       />
 
-      {/* Apple Filter & Search Toolbar */}
+      {/* Filter and Search Bar */}
       <div
-        className="ios-glass"
         style={{
-          padding: "12px 18px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -112,12 +105,12 @@ export default function ContactsPage() {
           flexWrap: "wrap",
         }}
       >
-        {/* iOS Segmented Control */}
-        <div className="ios-segmented-control">
+        <div className="filter-bar">
           {filters.map((f) => (
             <button
               key={f}
-              className={`ios-segment-btn${activeFilter === f ? " active" : ""}`}
+              type="button"
+              className={`filter-chip${activeFilter === f ? " active" : ""}`}
               onClick={() => setActiveFilter(f)}
             >
               {f}
@@ -126,27 +119,42 @@ export default function ContactsPage() {
         </div>
 
         {/* Search Field */}
-        <div style={{ minWidth: "260px", flex: 1, maxWidth: "380px" }}>
+        <div style={{ position: "relative", minWidth: "260px", maxWidth: "340px", flex: 1 }}>
+          <Search
+            size={14}
+            strokeWidth={1.75}
+            style={{
+              position: "absolute",
+              left: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "var(--text-tertiary)",
+            }}
+          />
           <input
             type="text"
             className="input"
-            style={{ padding: "8px 14px", fontSize: "13px" }}
-            placeholder="Search by name, company, or email..."
+            style={{ paddingLeft: "32px", fontSize: "12.5px" }}
+            placeholder="Search name, company, email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </div>
 
-      {/* Contacts List Grid */}
+      {/* Contacts Grid / Table */}
       {contacts.length === 0 && !loading ? (
         <EmptyState
-          icon="◉"
-          title="No prospects imported yet"
-          description="Upload a CSV file or add your target prospects to begin sequence enrollment."
+          icon={Users}
+          title="No prospects imported"
+          description="Upload a CSV target file or add contacts to enroll in campaigns."
           action={
-            <button className="btn btn-primary" onClick={() => setShowImportModal(true)}>
-              Upload First CSV
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setShowImportModal(true)}
+            >
+              Import CSV
             </button>
           }
         />
@@ -155,89 +163,72 @@ export default function ContactsPage() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-            gap: "18px",
+            gap: "14px",
           }}
         >
-          {filteredContacts.map((contact, idx) => {
-            const initials = `${contact.firstName[0] || ""}${contact.lastName[0] || ""}`.toUpperCase() || "P";
-            const gradient = avatarGradients[idx % avatarGradients.length];
-
-            return (
-              <Link
-                key={contact.id}
-                href={`/contacts/${contact.id}`}
-                style={{ textDecoration: "none", color: "inherit" }}
+          {filteredContacts.map((contact) => (
+            <Link
+              key={contact.id}
+              href={`/contacts/${contact.id}`}
+              style={{ textDecoration: "none" }}
+            >
+              <div
+                className="card-interactive"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                  height: "100%",
+                }}
               >
-                <div className="ios-card-interactive" style={{ padding: "20px" }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      <div
-                        style={{
-                          width: "40px",
-                          height: "40px",
-                          borderRadius: "50%",
-                          background: gradient,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontWeight: 800,
-                          fontSize: "14px",
-                          color: "#ffffff",
-                          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.35)",
-                        }}
-                      >
-                        {initials}
-                      </div>
-                      <div>
-                        <h4 style={{ fontSize: "14.5px", fontWeight: 750, color: "#ffffff" }}>
-                          {contact.firstName} {contact.lastName}
-                        </h4>
-                        <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-                          {contact.company || "Independent"}
-                        </p>
-                      </div>
-                    </div>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+                  <div>
+                    <h4 style={{ fontSize: "13.5px", fontWeight: 650, color: "var(--text-primary)" }}>
+                      {contact.firstName} {contact.lastName}
+                    </h4>
+                    <p style={{ fontSize: "12px", color: "var(--text-tertiary)", marginTop: "2px" }}>
+                      {contact.company || "Company unassigned"}
+                    </p>
+                  </div>
+                  <StatusBadge status={contact.state} />
+                </div>
 
-                    <StatusBadge status={contact.state} />
+                <div style={{ display: "flex", flexDirection: "column", gap: "5px", fontSize: "12px", color: "var(--text-secondary)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Mail size={13} strokeWidth={1.75} style={{ color: "var(--text-tertiary)", flexShrink: 0 }} />
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {contact.email}
+                    </span>
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", color: "var(--text-secondary)" }}>
+                  {contact.city && (
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ color: "var(--text-tertiary)" }}>✉</span>
-                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {contact.email}
-                      </span>
-                    </div>
-
-                    {contact.city && (
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <span style={{ color: "var(--text-tertiary)" }}>📍</span>
-                        <span>{contact.city}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {contact.notes && (
-                    <div
-                      style={{
-                        marginTop: "12px",
-                        padding: "8px 10px",
-                        background: "rgba(0, 0, 0, 0.2)",
-                        borderRadius: "8px",
-                        fontSize: "11.5px",
-                        color: "var(--text-tertiary)",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {contact.notes}
+                      <MapPin size={13} strokeWidth={1.75} style={{ color: "var(--text-tertiary)", flexShrink: 0 }} />
+                      <span>{contact.city}</span>
                     </div>
                   )}
                 </div>
-              </Link>
-            );
-          })}
+
+                {contact.notes && (
+                  <div
+                    style={{
+                      marginTop: "auto",
+                      padding: "6px 8px",
+                      backgroundColor: "var(--bg-surface-elevated)",
+                      borderRadius: "var(--radius-xs)",
+                      fontSize: "11.5px",
+                      color: "var(--text-tertiary)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {contact.notes}
+                  </div>
+                )}
+              </div>
+            </Link>
+          ))}
         </div>
       )}
 

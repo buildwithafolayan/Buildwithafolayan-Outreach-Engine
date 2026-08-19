@@ -9,26 +9,38 @@ interface HeaderProps {
 
 export default function Header({ eyebrow, title, description, actions }: HeaderProps) {
   return (
-    <header className="page-header">
-      <div className="page-header-content">
+    <header
+      style={{
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        gap: "16px",
+        marginBottom: "24px",
+        flexWrap: "wrap",
+      }}
+    >
+      <div style={{ flex: 1, minWidth: "260px" }}>
         {eyebrow && (
           <div className="page-eyebrow">
             <span
               style={{
-                width: "6px",
-                height: "6px",
+                width: "5px",
+                height: "5px",
                 borderRadius: "50%",
-                background: "var(--accent)",
-                boxShadow: "0 0 8px var(--accent)",
+                backgroundColor: "var(--accent)",
               }}
             />
-            {eyebrow}
+            <span>{eyebrow}</span>
           </div>
         )}
         <h1 className="page-title">{title}</h1>
         {description && <p className="page-description">{description}</p>}
       </div>
-      {actions && <div className="page-actions">{actions}</div>}
+      {actions && (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+          {actions}
+        </div>
+      )}
     </header>
   );
 }

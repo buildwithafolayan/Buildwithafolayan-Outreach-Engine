@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Lock, Eye, EyeOff, ArrowRight, ShieldCheck } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
@@ -32,7 +33,7 @@ function LoginForm() {
         router.push(from);
         router.refresh();
       } else {
-        setError(data.error || "Access denied. Please check your credentials.");
+        setError(data.error || "Access denied. Please check your password.");
       }
     } catch (err) {
       console.error("Authentication error:", err);
@@ -49,115 +50,64 @@ function LoginForm() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "var(--ios-bg-canvas)",
+        backgroundColor: "var(--bg-canvas)",
         color: "var(--text-primary)",
         padding: "20px",
-        position: "relative",
-        overflow: "hidden",
       }}
     >
-      {/* Apple Ambient Aurora Glow */}
       <div
         style={{
-          position: "absolute",
-          width: "600px",
-          height: "600px",
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(175, 82, 222, 0.08) 40%, transparent 70%)",
-          top: "30%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          pointerEvents: "none",
-          filter: "blur(60px)",
-        }}
-      />
-
-      <div
-        style={{
-          maxWidth: "420px",
+          maxWidth: "380px",
           width: "100%",
-          position: "relative",
-          zIndex: 1,
         }}
       >
-        {/* Brand Identity */}
-        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+        {/* Brand Header */}
+        <div style={{ textAlign: "center", marginBottom: "28px" }}>
           <div
-            className="apple-intelligence-glow animate-pulse-glow"
             style={{
-              width: "56px",
-              height: "56px",
-              margin: "0 auto 18px",
-              borderRadius: "16px",
+              width: "40px",
+              height: "40px",
+              margin: "0 auto 16px",
+              borderRadius: "var(--radius-sm)",
+              backgroundColor: "var(--text-primary)",
+              color: "var(--bg-canvas)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "24px",
+              fontSize: "16px",
               fontWeight: 800,
-              color: "#ffffff",
-              boxShadow: "0 12px 32px rgba(175, 82, 222, 0.4)",
+              letterSpacing: "-0.04em",
             }}
           >
             B
           </div>
           <h1
             style={{
-              fontSize: "24px",
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-              marginBottom: "6px",
-              color: "#ffffff",
+              fontSize: "20px",
+              fontWeight: 700,
+              letterSpacing: "-0.025em",
+              marginBottom: "4px",
+              color: "var(--text-primary)",
             }}
           >
             BuildWithAfolayan
           </h1>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "11px",
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              padding: "4px 12px",
-              borderRadius: "100px",
-              background: "rgba(255, 255, 255, 0.06)",
-              border: "1px solid var(--border-default)",
-              color: "var(--text-secondary)",
-              fontWeight: 650,
-            }}
-          >
-            <span
-              style={{
-                width: "6px",
-                height: "6px",
-                borderRadius: "50%",
-                background: "var(--success)",
-                boxShadow: "0 0 8px var(--success)",
-              }}
-            />
-            Private Command Center
-          </div>
+          <p style={{ fontSize: "12.5px", color: "var(--text-tertiary)" }}>
+            Private Outreach Engine
+          </p>
         </div>
 
-        {/* Access Form Card */}
-        <div
-          className="ios-glass"
-          style={{
-            padding: "36px 30px",
-            boxShadow: "0 28px 64px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.16)",
-          }}
-        >
+        {/* Card */}
+        <div className="card" style={{ padding: "28px" }}>
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: "20px" }}>
+            <div style={{ marginBottom: "16px" }}>
               <label
                 style={{
                   display: "block",
                   fontSize: "12px",
-                  fontWeight: 650,
+                  fontWeight: 600,
                   color: "var(--text-secondary)",
-                  marginBottom: "8px",
-                  letterSpacing: "0.02em",
+                  marginBottom: "6px",
                 }}
               >
                 Access Password
@@ -173,8 +123,7 @@ function LoginForm() {
                   required
                   className="input"
                   style={{
-                    paddingRight: "44px",
-                    fontSize: "14px",
+                    paddingRight: "38px",
                   }}
                 />
 
@@ -183,19 +132,24 @@ function LoginForm() {
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
                     position: "absolute",
-                    right: "14px",
+                    right: "10px",
                     top: "50%",
                     transform: "translateY(-50%)",
                     background: "transparent",
                     border: "none",
                     color: "var(--text-tertiary)",
                     cursor: "pointer",
-                    fontSize: "14px",
                     padding: "4px",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? "👁️" : "🔒"}
+                  {showPassword ? (
+                    <EyeOff size={14} strokeWidth={1.75} />
+                  ) : (
+                    <Eye size={14} strokeWidth={1.75} />
+                  )}
                 </button>
               </div>
             </div>
@@ -203,14 +157,13 @@ function LoginForm() {
             {error && (
               <div
                 style={{
-                  padding: "10px 14px",
-                  background: "rgba(239, 68, 68, 0.12)",
-                  border: "1px solid rgba(239, 68, 68, 0.3)",
-                  borderRadius: "10px",
-                  color: "#fca5a5",
+                  padding: "8px 12px",
+                  backgroundColor: "var(--danger-soft)",
+                  border: "1px solid var(--danger-border)",
+                  borderRadius: "var(--radius-sm)",
+                  color: "#f87171",
                   fontSize: "12px",
-                  marginBottom: "18px",
-                  lineHeight: 1.4,
+                  marginBottom: "16px",
                 }}
               >
                 {error}
@@ -223,28 +176,31 @@ function LoginForm() {
               className="btn btn-primary"
               style={{
                 width: "100%",
-                padding: "13px",
-                fontSize: "14px",
-                fontWeight: 700,
+                padding: "9px 14px",
+                fontSize: "13px",
               }}
             >
-              {isLoading ? "Authenticating..." : "Authenticate & Enter →"}
+              <span>{isLoading ? "Authenticating..." : "Enter Workspace"}</span>
+              <ArrowRight size={14} strokeWidth={2} />
             </button>
           </form>
         </div>
 
-        {/* Subtle Footer */}
-        <p
+        {/* Security badge */}
+        <div
           style={{
-            textAlign: "center",
-            marginTop: "24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+            marginTop: "20px",
             fontSize: "11px",
             color: "var(--text-muted)",
-            letterSpacing: "0.02em",
           }}
         >
-          Single-Operator Instance · Encrypted Session
-        </p>
+          <ShieldCheck size={13} strokeWidth={1.75} />
+          <span>Single-operator encrypted session</span>
+        </div>
       </div>
     </div>
   );
@@ -260,11 +216,11 @@ export default function LoginPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "var(--ios-bg-canvas)",
-            color: "var(--text-secondary)",
+            backgroundColor: "var(--bg-canvas)",
+            color: "var(--text-muted)",
           }}
         >
-          Loading access gate...
+          Loading...
         </div>
       }
     >

@@ -7,11 +7,11 @@ const variantMap: Record<string, string> = {
 
   // Enrollment states
   ENROLLED: "badge-info",
-  SCHEDULED: "badge-accent",
-  SENDING: "badge-accent",
-  WAITING: "badge-info",
+  SCHEDULED: "badge-info",
+  SENDING: "badge-info",
+  WAITING: "badge-neutral",
   REPLIED: "badge-success",
-  COMPLETED: "badge-success",
+  COMPLETED: "badge-neutral",
   ERROR: "badge-danger",
   BOUNCED: "badge-danger",
   UNSUBSCRIBED: "badge-danger",
@@ -19,8 +19,8 @@ const variantMap: Record<string, string> = {
 
   // Contact states
   NEW: "badge-info",
-  READY: "badge-accent",
-  CONTACTED: "badge-info",
+  READY: "badge-info",
+  CONTACTED: "badge-neutral",
   FOLLOW_UP_PENDING: "badge-warning",
   POSITIVE: "badge-success",
   NEGATIVE: "badge-danger",
@@ -34,14 +34,15 @@ const variantMap: Record<string, string> = {
 interface StatusBadgeProps {
   status: string;
   showDot?: boolean;
+  className?: string;
 }
 
-export default function StatusBadge({ status, showDot = true }: StatusBadgeProps) {
+export default function StatusBadge({ status, showDot = true, className = "" }: StatusBadgeProps) {
   const variant = variantMap[status] ?? "badge-neutral";
   const label = status.replace(/_/g, " ");
 
   return (
-    <span className={`badge ${variant}`}>
+    <span className={`badge ${variant} ${className}`}>
       {showDot && <span className="badge-dot" />}
       {label}
     </span>

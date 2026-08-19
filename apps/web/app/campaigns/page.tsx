@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Send, Plus, Layers, Inbox } from "lucide-react";
 import Header from "../components/Header";
 import StatusBadge from "../components/StatusBadge";
 import EmptyState from "../components/EmptyState";
@@ -60,37 +61,38 @@ export default function CampaignsPage() {
   });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       <Header
         eyebrow="Outbound Sequences"
-        title="Email Campaigns"
-        description="Design multi-step email cadences with Gemini AI copywriting and track automated sending."
+        title="Campaigns"
+        description="Multi-step automated email cadences with AI generation and reply tracking."
         actions={
           <button
+            type="button"
             className="btn btn-primary"
             onClick={() => setShowCreateModal(true)}
           >
-            <span>+</span>
+            <Plus size={14} strokeWidth={2} />
             <span>New Campaign</span>
           </button>
         }
       />
 
-      {/* iOS Segmented Filter Control */}
+      {/* Filter Chips Bar */}
       <div
-        className="ios-glass"
         style={{
-          padding: "10px 16px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: "16px",
         }}
       >
-        <div className="ios-segmented-control">
+        <div className="filter-bar">
           {filters.map((f) => (
             <button
               key={f}
-              className={`ios-segment-btn${activeFilter === f ? " active" : ""}`}
+              type="button"
+              className={`filter-chip${activeFilter === f ? " active" : ""}`}
               onClick={() => setActiveFilter(f)}
             >
               {f}
@@ -98,63 +100,72 @@ export default function CampaignsPage() {
           ))}
         </div>
 
-        <span style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-          {filteredCampaigns.length} sequence{filteredCampaigns.length === 1 ? "" : "s"}
+        <span style={{ fontSize: "12px", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>
+          {filteredCampaigns.length} total
         </span>
       </div>
 
       {/* Campaigns Grid */}
       {campaigns.length === 0 && !loading ? (
         <EmptyState
-          icon="◈"
-          title="No campaigns created yet"
-          description="Create your first sequence with Gemini AI to automate outreach to your prospect targets."
+          icon={Send}
+          title="No campaigns found"
+          description="Create your first outbound sequence to automate prospect outreach."
           action={
             <button
+              type="button"
               className="btn btn-primary"
               onClick={() => setShowCreateModal(true)}
             >
-              Create Your First Campaign
+              Create Campaign
             </button>
           }
         />
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "20px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "16px" }}>
           {filteredCampaigns.map((camp) => (
             <Link
               key={camp.id}
               href={`/campaigns/${camp.id}`}
-              style={{ textDecoration: "none", color: "inherit" }}
+              style={{ textDecoration: "none" }}
             >
-              <div className="ios-card-interactive">
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "12px" }}>
+              <div
+                className="card-interactive"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "14px",
+                  height: "100%",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
                   <div>
-                    <h3 style={{ fontSize: "16px", fontWeight: 750, color: "#ffffff", marginBottom: "4px" }}>
+                    <h3 style={{ fontSize: "14.5px", fontWeight: 650, color: "var(--text-primary)" }}>
                       {camp.name}
                     </h3>
-                    <p style={{ fontSize: "12px", color: "var(--text-tertiary)", maxWidth: "260px" }}>
+                    <p style={{ fontSize: "12px", color: "var(--text-tertiary)", marginTop: "2px", maxWidth: "260px" }}>
                       {camp.description || "No description provided"}
                     </p>
                   </div>
                   <StatusBadge status={camp.status} />
                 </div>
 
-                {/* Steps Visual Rail */}
-                <div style={{ margin: "16px 0", display: "flex", alignItems: "center", gap: "6px" }}>
+                {/* Steps Mini Preview */}
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   {(camp.steps || []).map((step, sIdx) => (
                     <div
                       key={sIdx}
                       style={{
                         flex: 1,
-                        padding: "8px",
-                        background: "rgba(255, 255, 255, 0.04)",
-                        borderRadius: "8px",
+                        padding: "6px",
+                        backgroundColor: "var(--bg-surface-elevated)",
+                        borderRadius: "var(--radius-xs)",
                         border: "1px solid var(--border-subtle)",
                         textAlign: "center",
                       }}
                     >
-                      <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--accent)" }}>
-                        STEP {step.number}
+                      <span style={{ fontSize: "9.5px", fontWeight: 700, color: "var(--text-tertiary)", textTransform: "uppercase" }}>
+                        Step {step.number}
                       </span>
                       <p
                         style={{
@@ -178,26 +189,27 @@ export default function CampaignsPage() {
                     display: "grid",
                     gridTemplateColumns: "1fr 1fr 1fr",
                     gap: "8px",
-                    paddingTop: "14px",
+                    paddingTop: "12px",
                     borderTop: "1px solid var(--border-subtle)",
                     textAlign: "center",
+                    marginTop: "auto",
                   }}
                 >
                   <div>
                     <span style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>Enrolled</span>
-                    <p style={{ fontSize: "14px", fontWeight: 700, color: "#ffffff" }}>
+                    <p style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}>
                       {camp.enrolledCount || 0}
                     </p>
                   </div>
                   <div>
                     <span style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>Dispatched</span>
-                    <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--accent)" }}>
+                    <p style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}>
                       {camp.sentCount || 0}
                     </p>
                   </div>
                   <div>
                     <span style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>Replies</span>
-                    <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--success)" }}>
+                    <p style={{ fontSize: "13.5px", fontWeight: 700, color: "#34d399", fontFamily: "var(--font-mono)" }}>
                       {camp.repliedCount || 0}
                     </p>
                   </div>

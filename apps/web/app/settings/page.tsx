@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Save, Check, AlertOctagon, Clock, Sparkles, ShieldAlert, Mail } from "lucide-react";
 import Header from "../components/Header";
 import GmailConnectSection from "../components/GmailConnectSection";
 import GlobalSendingSwitch from "../components/GlobalSendingSwitch";
@@ -117,11 +118,11 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="animate-in" style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       <Header
         eyebrow="Settings"
         title="Configuration"
-        description="Manage global sending controls, rate limits, working hours, and your Gmail connection."
+        description="Manage global dispatch guardrails, rate limits, sending windows, and Gmail connection."
         actions={
           <button
             type="button"
@@ -129,7 +130,8 @@ export default function SettingsPage() {
             onClick={() => handleSave()}
             disabled={saving || loading}
           >
-            {saving ? "Saving Changes..." : "Save Configuration"}
+            <Save size={14} strokeWidth={2} />
+            <span>{saving ? "Saving..." : "Save Settings"}</span>
           </button>
         }
       />
@@ -137,53 +139,51 @@ export default function SettingsPage() {
       {saveMessage && (
         <div
           style={{
-            padding: "12px 16px",
-            borderRadius: "10px",
-            fontSize: "13px",
+            padding: "10px 14px",
+            borderRadius: "var(--radius-sm)",
+            fontSize: "12.5px",
             background: saveMessage.type === "success" ? "var(--success-soft)" : "var(--danger-soft)",
-            color: saveMessage.type === "success" ? "var(--success)" : "var(--danger)",
-            fontWeight: 600,
+            color: saveMessage.type === "success" ? "#34d399" : "#f87171",
+            border: saveMessage.type === "success" ? "1px solid var(--success-border)" : "1px solid var(--danger-border)",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
           }}
         >
-          {saveMessage.type === "success" ? "✓ " : "✕ "}
-          {saveMessage.text}
+          {saveMessage.type === "success" ? (
+            <Check size={14} strokeWidth={2.5} />
+          ) : (
+            <AlertOctagon size={14} strokeWidth={2} />
+          )}
+          <span>{saveMessage.text}</span>
         </div>
       )}
 
-      {/* Global Sending Control */}
+      {/* Global Sending Switch */}
       <div className="settings-section">
-        <h2 className="settings-section-title">Global Sending Control</h2>
+        <h2 className="settings-section-title">Dispatch Control</h2>
         <div className="settings-row">
           <div className="settings-row-info">
-            <p className="settings-row-label">Global Sending Master Switch</p>
+            <p className="settings-row-label">Master Sending Switch</p>
             <p className="settings-row-description">
-              Master control for all automated sends across every campaign. When toggled off, all email dispatch is safely halted.
+              Master control for all automated sends across campaigns. When toggled off, dispatch halts immediately.
             </p>
           </div>
           <GlobalSendingSwitch />
         </div>
-        <div className="settings-row">
-          <div className="settings-row-info">
-            <p className="settings-row-label">Safety Window & Guardrails</p>
-            <p className="settings-row-description">
-              Sends will only occur within working hours and are randomized to protect mailbox reputation.
-            </p>
-          </div>
-          <span className="badge badge-success"><span className="badge-dot" />Guardrails Active</span>
-        </div>
       </div>
 
-      {/* Gmail OAuth Connection & Verification */}
+      {/* Gmail OAuth Connection */}
       <GmailConnectSection />
 
-      {/* Rate Limits */}
-      <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+      {/* Rate Limits & Guardrails */}
+      <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
         <div className="settings-section">
-          <h2 className="settings-section-title">Rate Limits</h2>
+          <h2 className="settings-section-title">Rate Limits & Guardrails</h2>
           <div className="settings-row">
             <div className="settings-row-info">
               <p className="settings-row-label">Daily Send Limit</p>
-              <p className="settings-row-description">Maximum emails sent per calendar day across all campaigns.</p>
+              <p className="settings-row-description">Maximum emails dispatched per day across all sequences.</p>
             </div>
             <input
               type="number"
@@ -198,7 +198,7 @@ export default function SettingsPage() {
           <div className="settings-row">
             <div className="settings-row-info">
               <p className="settings-row-label">Hourly Send Limit</p>
-              <p className="settings-row-description">Maximum emails sent per hour to stay within Gmail guidelines.</p>
+              <p className="settings-row-description">Maximum emails dispatched per hour to stay under Gmail thresholds.</p>
             </div>
             <input
               type="number"
@@ -212,8 +212,8 @@ export default function SettingsPage() {
           </div>
           <div className="settings-row">
             <div className="settings-row-info">
-              <p className="settings-row-label">Campaign Failure Threshold</p>
-              <p className="settings-row-description">Auto-pause a campaign after this many consecutive send failures.</p>
+              <p className="settings-row-label">Failure Threshold</p>
+              <p className="settings-row-description">Auto-pause campaign after this many consecutive bounce/errors.</p>
             </div>
             <input
               type="number"
@@ -227,16 +227,16 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Working Hours */}
+        {/* Working Hours & Schedule */}
         <div className="settings-section">
           <h2 className="settings-section-title">Working Hours & Scheduling</h2>
           <div className="settings-row">
             <div className="settings-row-info">
               <p className="settings-row-label">Time Zone</p>
-              <p className="settings-row-description">All scheduling and working-hour calculations use this time zone.</p>
+              <p className="settings-row-description">Timezone used for schedule calculations.</p>
             </div>
             <select
-              className="input"
+              className="select"
               style={{ width: "auto", minWidth: "220px" }}
               value={settings.timeZone}
               onChange={(e) => setSettings({ ...settings, timeZone: e.target.value })}
@@ -250,8 +250,8 @@ export default function SettingsPage() {
           </div>
           <div className="settings-row">
             <div className="settings-row-info">
-              <p className="settings-row-label">Send Window Hours</p>
-              <p className="settings-row-description">Emails are only sent between these hours. Sends outside this window are rescheduled.</p>
+              <p className="settings-row-label">Sending Window</p>
+              <p className="settings-row-description">Sends are queued and only delivered between these business hours.</p>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <input
@@ -261,7 +261,7 @@ export default function SettingsPage() {
                 value={settings.sendWindowStart}
                 onChange={(e) => setSettings({ ...settings, sendWindowStart: e.target.value })}
               />
-              <span style={{ color: "var(--text-tertiary)" }}>to</span>
+              <span style={{ color: "var(--text-tertiary)", fontSize: "12px" }}>to</span>
               <input
                 type="time"
                 className="input"
@@ -273,8 +273,8 @@ export default function SettingsPage() {
           </div>
           <div className="settings-row">
             <div className="settings-row-info">
-              <p className="settings-row-label">Randomized Delay (Jitter)</p>
-              <p className="settings-row-description">Random jitter (minutes) added between sends to appear natural.</p>
+              <p className="settings-row-label">Randomized Jitter</p>
+              <p className="settings-row-description">Random minutes delay added between emails to mimic human behavior.</p>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <input
@@ -291,37 +291,18 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* AI Engine */}
-        <div className="settings-section">
-          <h2 className="settings-section-title">Gemini AI Engine</h2>
-          <div className="settings-row">
-            <div className="settings-row-info">
-              <p className="settings-row-label">Active AI Model</p>
-              <p className="settings-row-description">Used for real-time personalization, sequence drafting, and reply sentiment classification.</p>
-            </div>
-            <span className="settings-row-value" style={{ color: "var(--accent)", fontWeight: 650 }}>gemini-2.0-flash (Gemini Flash)</span>
-          </div>
-          <div className="settings-row">
-            <div className="settings-row-info">
-              <p className="settings-row-label">API Status</p>
-              <p className="settings-row-description">API Key configured in environment.</p>
-            </div>
-            <span className="badge badge-success"><span className="badge-dot" />Connected & Active</span>
-          </div>
-        </div>
-
         {/* Sender Identity */}
         <div className="settings-section">
           <h2 className="settings-section-title">Sender Identity</h2>
           <div className="settings-row" style={{ alignItems: "flex-start" }}>
             <div className="settings-row-info">
               <p className="settings-row-label">Email Signature</p>
-              <p className="settings-row-description">Appended to every outbound email. Plain text format.</p>
+              <p className="settings-row-description">Appended to every outbound email body in plain text.</p>
             </div>
             <textarea
-              className="input"
+              className="textarea"
               rows={3}
-              style={{ width: "100%", maxWidth: "340px", fontSize: "12.5px" }}
+              style={{ width: "100%", maxWidth: "340px", fontSize: "12px" }}
               placeholder="Best,&#10;Favour Afolayan&#10;BuildWithAfolayan"
               value={settings.emailSignature || ""}
               onChange={(e) => setSettings({ ...settings, emailSignature: e.target.value })}
@@ -329,8 +310,8 @@ export default function SettingsPage() {
           </div>
           <div className="settings-row">
             <div className="settings-row-info">
-              <p className="settings-row-label">Admin Notification Email</p>
-              <p className="settings-row-description">Operator contact for critical alerts and daily summary reports.</p>
+              <p className="settings-row-label">Admin Email</p>
+              <p className="settings-row-description">Operator email for critical alert dispatches.</p>
             </div>
             <input
               type="email"
@@ -342,31 +323,32 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Save Button Bar */}
+        {/* Save button */}
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <button
             type="submit"
             className="btn btn-primary"
             disabled={saving || loading}
-            style={{ padding: "10px 24px" }}
           >
-            {saving ? "Saving Changes..." : "Save Configuration"}
+            <Save size={14} strokeWidth={2} />
+            <span>{saving ? "Saving..." : "Save Settings"}</span>
           </button>
         </div>
       </form>
 
       {/* Danger Zone */}
-      <div className="settings-section" style={{ borderColor: "rgba(248, 113, 113, 0.2)" }}>
+      <div className="settings-section" style={{ borderColor: "var(--danger-border)" }}>
         <h2 className="settings-section-title" style={{ color: "var(--danger)" }}>Danger Zone</h2>
         <div className="settings-row">
           <div className="settings-row-info">
             <p className="settings-row-label">Emergency Stop</p>
             <p className="settings-row-description">
-              Immediately pause all campaigns and halt all pending sends across the entire operating system.
+              Instantly disable global sending and halt all pending sequences.
             </p>
           </div>
           <button type="button" className="btn btn-danger" onClick={handleEmergencyStop}>
-            Emergency Stop All
+            <ShieldAlert size={14} strokeWidth={2} />
+            <span>Emergency Stop</span>
           </button>
         </div>
       </div>

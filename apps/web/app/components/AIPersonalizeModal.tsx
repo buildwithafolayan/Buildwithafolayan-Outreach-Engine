@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Card from "./Card";
+import { Sparkles, X, RefreshCw, Lightbulb } from "lucide-react";
 
 interface AIPersonalizeModalProps {
   contact: {
@@ -62,141 +62,130 @@ export default function AIPersonalizeModal({
   return (
     <>
       <button
+        type="button"
         className="btn btn-primary"
-        style={{
-          background: "linear-gradient(135deg, hsl(270 85% 65%), var(--accent))",
-        }}
         onClick={() => {
           setIsOpen(true);
           if (!result) handleGenerate();
         }}
       >
-        ✨ AI Personalize Preview (Gemini)
+        <Sparkles size={14} strokeWidth={2} />
+        <span>AI Personalize Preview</span>
       </button>
 
       {isOpen && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0, 0, 0, 0.75)",
-            backdropFilter: "blur(8px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "20px",
-          }}
-          onClick={() => setIsOpen(false)}
-        >
-          <div
-            style={{
-              maxWidth: "680px",
-              width: "100%",
-              maxHeight: "90vh",
-              overflowY: "auto",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Card glass>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: "var(--space-4)",
-                }}
+        <div className="modal-backdrop" onClick={() => setIsOpen(false)}>
+          <div className="modal-dialog" style={{ maxWidth: "640px" }} onClick={(e) => e.stopPropagation()}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "16px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Sparkles size={16} strokeWidth={2} style={{ color: "var(--accent)" }} />
+                <div>
+                  <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>
+                    Gemini AI Personalization
+                  </h3>
+                  <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
+                    Tailored copy for {contact.firstName} {contact.lastName} ({contact.company})
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => setIsOpen(false)}
+                style={{ padding: "4px" }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "20px" }}>✨</span>
-                  <div>
-                    <h3 style={{ fontSize: "16px", fontWeight: 700 }}>
-                      Gemini Flash Personalization
-                    </h3>
-                    <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-                      Personalizing copy specifically for {contact.firstName} {contact.lastName} at {contact.company}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  className="btn btn-ghost btn-icon"
-                  onClick={() => setIsOpen(false)}
+                <X size={14} />
+              </button>
+            </div>
+
+            <div style={{ marginBottom: "14px" }}>
+              <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "4px" }}>
+                Value Proposition / Hook Focus
+              </label>
+              <input
+                type="text"
+                className="input"
+                value={valueProp}
+                onChange={(e) => setValueProp(e.target.value)}
+              />
+            </div>
+
+            <div style={{ marginBottom: "16px" }}>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={handleGenerate}
+                disabled={isLoading}
+              >
+                <RefreshCw size={12} strokeWidth={2} className={isLoading ? "animate-spin" : ""} />
+                <span>{isLoading ? "Generating..." : "Regenerate Pitch"}</span>
+              </button>
+            </div>
+
+            {isLoading && (
+              <div style={{ padding: "28px", textAlign: "center", color: "var(--text-muted)", fontSize: "12.5px" }}>
+                <p>Gemini AI is analyzing {contact.company} and generating bespoke copy...</p>
+              </div>
+            )}
+
+            {result && !isLoading && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div
+                  style={{
+                    backgroundColor: "var(--bg-surface-elevated)",
+                    border: "1px solid var(--border-default)",
+                    borderRadius: "var(--radius-sm)",
+                    padding: "12px 14px",
+                  }}
                 >
-                  ✕
-                </button>
-              </div>
-
-              <div style={{ marginBottom: "var(--space-4)" }}>
-                <label className="input-label" style={{ marginBottom: "6px", display: "block" }}>
-                  Value Proposition / Hook Focus
-                </label>
-                <input
-                  type="text"
-                  className="input"
-                  style={{ width: "100%" }}
-                  value={valueProp}
-                  onChange={(e) => setValueProp(e.target.value)}
-                />
-              </div>
-
-              <div style={{ display: "flex", gap: "8px", marginBottom: "var(--space-5)" }}>
-                <button
-                  className="btn btn-primary"
-                  onClick={handleGenerate}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Generating with Gemini..." : "Regenerate Copy"}
-                </button>
-              </div>
-
-              {isLoading && (
-                <div style={{ padding: "30px", textAlign: "center", color: "var(--text-tertiary)" }}>
-                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>⚡</div>
-                  <p>Gemini Flash is analyzing {contact.company} and crafting tailored outreach copy...</p>
-                </div>
-              )}
-
-              {result && !isLoading && (
-                <div className="animate-in" style={{ display: "grid", gap: "var(--space-4)" }}>
-                  <div style={{ background: "var(--bg-tertiary)", padding: "14px", borderRadius: "8px" }}>
-                    <p style={{ fontSize: "11px", textTransform: "uppercase", color: "var(--accent)", fontWeight: 700, marginBottom: "4px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
+                    <Lightbulb size={13} strokeWidth={2} style={{ color: "var(--warning)" }} />
+                    <span style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "var(--text-secondary)" }}>
                       Custom Hook & Reasoning
-                    </p>
-                    <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                      💡 {result.customHook}
-                    </p>
-                    <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-                      {result.reasoning}
-                    </p>
+                    </span>
                   </div>
-
-                  <div>
-                    <label className="input-label" style={{ marginBottom: "4px", display: "block" }}>
-                      Subject
-                    </label>
-                    <input
-                      type="text"
-                      className="input"
-                      style={{ width: "100%", fontWeight: 600 }}
-                      value={result.personalizedSubject}
-                      readOnly
-                    />
-                  </div>
-
-                  <div>
-                    <label className="input-label" style={{ marginBottom: "4px", display: "block" }}>
-                      Personalized Body (Plain Text)
-                    </label>
-                    <textarea
-                      className="input textarea"
-                      style={{ width: "100%", height: "180px", fontFamily: "var(--font-sans)", lineHeight: 1.6 }}
-                      value={result.personalizedBody}
-                      readOnly
-                    />
-                  </div>
+                  <p style={{ fontSize: "12.5px", color: "var(--text-primary)", marginBottom: "4px" }}>
+                    {result.customHook}
+                  </p>
+                  <p style={{ fontSize: "11.5px", color: "var(--text-tertiary)" }}>
+                    {result.reasoning}
+                  </p>
                 </div>
-              )}
-            </Card>
+
+                <div>
+                  <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "4px" }}>
+                    Personalized Subject
+                  </label>
+                  <input
+                    type="text"
+                    className="input"
+                    style={{ fontWeight: 600 }}
+                    value={result.personalizedSubject}
+                    readOnly
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "4px" }}>
+                    Personalized Body (Plain Text)
+                  </label>
+                  <textarea
+                    className="textarea"
+                    rows={6}
+                    style={{ fontFamily: "var(--font-sans)", lineHeight: 1.5, fontSize: "12.5px" }}
+                    value={result.personalizedBody}
+                    readOnly
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

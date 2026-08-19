@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
+import { BarChart3, TrendingUp, Send, MessageSquare, CheckCircle2 } from "lucide-react";
 import Header from "../components/Header";
-import Card from "../components/Card";
+import StatusBadge from "../components/StatusBadge";
 
 export const metadata: Metadata = {
   title: "Analytics",
 };
 
 const overviewStats = [
-  { label: "Total Emails Sent", value: "230", sub: "Across all campaigns" },
-  { label: "Total Replies", value: "27", sub: "11.7% overall reply rate" },
-  { label: "Positive Outcomes", value: "14", sub: "51.9% of replies" },
-  { label: "Active Contacts", value: "36", sub: "Currently in sequences" },
+  { label: "Total Emails Dispatched", value: "230", sub: "All active cadences", icon: Send },
+  { label: "Detected Replies", value: "27", sub: "11.7% overall response rate", icon: MessageSquare },
+  { label: "Positive Conversions", value: "14", sub: "51.9% of total replies", icon: CheckCircle2 },
+  { label: "Enrolled Targets", value: "36", sub: "Currently scheduled", icon: TrendingUp },
 ];
 
 const campaignPerformance = [
@@ -19,90 +20,126 @@ const campaignPerformance = [
   { name: "Q2 Agency Partners", sent: 180, replied: 18, rate: "10.0%", positive: 8, status: "ARCHIVED" },
 ];
 
-// Generate chart bar heights
 const weeklyData = [35, 52, 28, 64, 41, 73, 56, 48, 62, 39, 71, 45];
+const replyData = [18, 12, 22, 15, 28, 20, 35, 25, 30, 22, 27, 32];
 
 export default function AnalyticsPage() {
   return (
-    <div className="animate-in">
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       <Header
-        eyebrow="Analytics"
-        title="Performance overview"
-        description="Track send volume, reply rates, and campaign effectiveness across your outreach."
+        eyebrow="Intelligence"
+        title="Performance Analytics"
+        description="Dispatch volume, reply rates, and conversion effectiveness across cadences."
         actions={
-          <div style={{ display: "flex", gap: "var(--space-2)" }}>
-            <button className="filter-chip active">Last 30 days</button>
-            <button className="filter-chip">Last 7 days</button>
-            <button className="filter-chip">All time</button>
+          <div className="filter-bar">
+            <button type="button" className="filter-chip active">Last 30 days</button>
+            <button type="button" className="filter-chip">Last 7 days</button>
+            <button type="button" className="filter-chip">All time</button>
           </div>
         }
       />
 
       {/* Overview Stats */}
-      <div className="stat-grid" style={{ marginBottom: "var(--space-8)" }}>
-        {overviewStats.map(({ label, value, sub }) => (
+      <div className="stat-grid">
+        {overviewStats.map(({ label, value, sub, icon: Icon }) => (
           <div className="stat-card" key={label}>
-            <p className="stat-label">{label}</p>
-            <p className="stat-value">{value}</p>
-            <p className="stat-sub">{sub}</p>
+            <div className="stat-label">
+              <span>{label}</span>
+              <Icon size={14} strokeWidth={1.75} style={{ color: "var(--text-muted)" }} />
+            </div>
+            <div className="stat-value">{value}</div>
+            <div className="stat-sub">{sub}</div>
           </div>
         ))}
       </div>
 
-      <div className="grid-2" style={{ alignItems: "start" }}>
+      {/* Visual Volume Trends */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
         {/* Send Volume Chart */}
-        <Card>
-          <h3 className="section-title" style={{ marginBottom: "var(--space-5)" }}>Weekly Send Volume</h3>
-          <div className="chart-placeholder">
+        <div className="card">
+          <h3 style={{ fontSize: "14px", fontWeight: 650, color: "var(--text-primary)", marginBottom: "16px" }}>
+            Weekly Dispatch Volume
+          </h3>
+          <div
+            style={{
+              height: "100px",
+              display: "flex",
+              alignItems: "flex-end",
+              gap: "8px",
+              paddingBottom: "8px",
+              borderBottom: "1px solid var(--border-subtle)",
+            }}
+          >
             {weeklyData.map((h, i) => (
               <div
                 key={i}
-                className="chart-bar"
-                style={{ height: `${h}%`, animationDelay: `${i * 50}ms` }}
+                style={{
+                  flex: 1,
+                  height: `${h}%`,
+                  backgroundColor: "#fafafa",
+                  borderRadius: "2px 2px 0 0",
+                  opacity: 0.85,
+                }}
+                title={`Week ${i + 1}: ${h} sends`}
               />
             ))}
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "var(--space-3)", fontSize: "11px", color: "var(--text-muted)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", fontSize: "11px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
             <span>12 weeks ago</span>
-            <span>This week</span>
+            <span>Current week</span>
           </div>
-        </Card>
+        </div>
 
         {/* Reply Rate Chart */}
-        <Card>
-          <h3 className="section-title" style={{ marginBottom: "var(--space-5)" }}>Reply Rate Trend</h3>
-          <div className="chart-placeholder">
-            {[18, 12, 22, 15, 28, 20, 35, 25, 30, 22, 27, 32].map((h, i) => (
+        <div className="card">
+          <h3 style={{ fontSize: "14px", fontWeight: 650, color: "var(--text-primary)", marginBottom: "16px" }}>
+            Reply Rate Velocity (%)
+          </h3>
+          <div
+            style={{
+              height: "100px",
+              display: "flex",
+              alignItems: "flex-end",
+              gap: "8px",
+              paddingBottom: "8px",
+              borderBottom: "1px solid var(--border-subtle)",
+            }}
+          >
+            {replyData.map((h, i) => (
               <div
                 key={i}
-                className="chart-bar"
                 style={{
+                  flex: 1,
                   height: `${h}%`,
-                  animationDelay: `${i * 50}ms`,
-                  background: "linear-gradient(180deg, var(--success), hsl(160 60% 35%))",
+                  backgroundColor: "#10b981",
+                  borderRadius: "2px 2px 0 0",
+                  opacity: 0.85,
                 }}
+                title={`Week ${i + 1}: ${h}% replies`}
               />
             ))}
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "var(--space-3)", fontSize: "11px", color: "var(--text-muted)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", fontSize: "11px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
             <span>12 weeks ago</span>
-            <span>This week</span>
+            <span>Current week</span>
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* Campaign Performance Table */}
-      <div style={{ marginTop: "var(--space-8)" }}>
-        <div className="section-header">
-          <h2 className="section-title">Campaign Performance</h2>
+      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border-default)" }}>
+          <h3 style={{ fontSize: "14px", fontWeight: 650, color: "var(--text-primary)" }}>
+            Cadence Breakdown
+          </h3>
         </div>
-        <div className="table-container">
+        <div className="table-container" style={{ border: "none", borderRadius: 0 }}>
           <table className="table">
             <thead>
               <tr>
-                <th>Campaign</th>
-                <th>Sent</th>
-                <th>Replied</th>
+                <th>Sequence Name</th>
+                <th>Dispatched</th>
+                <th>Replies</th>
                 <th>Reply Rate</th>
                 <th>Positive</th>
                 <th>Status</th>
@@ -111,45 +148,18 @@ export default function AnalyticsPage() {
             <tbody>
               {campaignPerformance.map((c) => (
                 <tr key={c.name}>
-                  <td className="table-name">{c.name}</td>
+                  <td style={{ fontWeight: 600, color: "var(--text-primary)" }}>{c.name}</td>
                   <td>{c.sent}</td>
                   <td>{c.replied}</td>
-                  <td style={{ fontFamily: "var(--font-mono)" }}>{c.rate}</td>
-                  <td>{c.positive}</td>
+                  <td style={{ fontFamily: "var(--font-mono)", color: "var(--text-primary)" }}>{c.rate}</td>
+                  <td style={{ color: "#34d399", fontWeight: 600 }}>{c.positive}</td>
                   <td>
-                    <span className={`badge ${
-                      c.status === "ACTIVE" ? "badge-success" :
-                      c.status === "PAUSED" ? "badge-warning" : "badge-neutral"
-                    }`}>
-                      <span className="badge-dot" />
-                      {c.status}
-                    </span>
+                    <StatusBadge status={c.status} />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Outcome Breakdown */}
-      <div style={{ marginTop: "var(--space-8)" }}>
-        <div className="section-header">
-          <h2 className="section-title">Reply Outcomes</h2>
-        </div>
-        <div className="stat-grid">
-          {[
-            { label: "Positive", value: "14", color: "var(--success)" },
-            { label: "Negative", value: "5", color: "var(--danger)" },
-            { label: "Neutral", value: "3", color: "var(--text-secondary)" },
-            { label: "Out of Office", value: "3", color: "var(--warning)" },
-            { label: "Unsubscribed", value: "2", color: "var(--danger)" },
-          ].map(({ label, value, color }) => (
-            <div className="stat-card" key={label} style={{ "--stat-accent": color } as React.CSSProperties}>
-              <p className="stat-label">{label}</p>
-              <p className="stat-value" style={{ color }}>{value}</p>
-            </div>
-          ))}
         </div>
       </div>
     </div>

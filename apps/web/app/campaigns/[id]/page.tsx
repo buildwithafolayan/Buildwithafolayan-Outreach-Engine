@@ -2,6 +2,17 @@
 
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
+import {
+  ArrowLeft,
+  Play,
+  Pause,
+  UserPlus,
+  Mail,
+  Clock,
+  Send,
+  MessageSquare,
+  Sparkles,
+} from "lucide-react";
 import StatusBadge from "../../components/StatusBadge";
 import EnrollContactsModal from "@/app/components/EnrollContactsModal";
 import AISequenceGenerator from "@/app/components/AISequenceGenerator";
@@ -87,7 +98,6 @@ export default function CampaignDetailPage({
     const nextStatus = campaign.status === "ACTIVE" ? "PAUSED" : "ACTIVE";
     const prevStatus = campaign.status;
 
-    // Optimistic update
     setCampaign({ ...campaign, status: nextStatus });
 
     try {
@@ -110,9 +120,10 @@ export default function CampaignDetailPage({
   if (!campaign && !loading) {
     return (
       <div style={{ padding: "40px 0" }}>
-        <p>Campaign not found.</p>
-        <Link href="/campaigns" className="btn btn-secondary" style={{ marginTop: "16px" }}>
-          ← Back to Campaigns
+        <p style={{ color: "var(--text-muted)", fontSize: "13px" }}>Campaign not found.</p>
+        <Link href="/campaigns" className="btn btn-secondary" style={{ marginTop: "12px" }}>
+          <ArrowLeft size={14} strokeWidth={2} />
+          <span>Back to Campaigns</span>
         </Link>
       </div>
     );
@@ -136,128 +147,155 @@ export default function CampaignDetailPage({
   ];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
-      {/* Apple Eyebrow & Breadcrumb */}
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      {/* Breadcrumb */}
       <div className="page-eyebrow">
-        <Link href="/campaigns" style={{ color: "var(--text-tertiary)", textDecoration: "none" }}>
+        <Link href="/campaigns" style={{ color: "var(--text-tertiary)" }}>
           Campaigns
         </Link>
-        <span style={{ color: "var(--text-tertiary)" }}>/</span>
-        <span style={{ color: "#ffffff" }}>{campaign?.name}</span>
+        <span>/</span>
+        <span style={{ color: "var(--text-primary)" }}>{campaign?.name}</span>
       </div>
 
       {/* Header */}
-      <div className="page-header" style={{ marginBottom: "8px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: "16px",
+          flexWrap: "wrap",
+        }}
+      >
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
             <h1 className="page-title">{campaign?.name}</h1>
             {campaign && <StatusBadge status={campaign.status} />}
           </div>
           <p className="page-description">{campaign?.description}</p>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button className="btn btn-secondary" onClick={toggleCampaignStatus}>
-            {campaign?.status === "ACTIVE" ? "⏸ Pause Campaign" : "▶ Resume Campaign"}
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={toggleCampaignStatus}
+          >
+            {campaign?.status === "ACTIVE" ? (
+              <>
+                <Pause size={13} strokeWidth={2} />
+                <span>Pause</span>
+              </>
+            ) : (
+              <>
+                <Play size={13} strokeWidth={2} />
+                <span>Resume</span>
+              </>
+            )}
           </button>
           <button
+            type="button"
             className="btn btn-primary"
             onClick={() => setShowEnrollModal(true)}
           >
-            + Enroll Contacts
+            <UserPlus size={14} strokeWidth={2} />
+            <span>Enroll Prospects</span>
           </button>
         </div>
       </div>
 
-      {/* 4 Stat Cards */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "16px",
-        }}
-      >
-        <div className="ios-glass" style={{ padding: "20px" }}>
-          <span style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>Enrolled</span>
-          <p style={{ fontSize: "28px", fontWeight: 800, color: "#ffffff", margin: "4px 0" }}>
-            {campaign?.enrolledCount || enrolledContacts.length}
-          </p>
-          <span style={{ fontSize: "11.5px", color: "var(--text-secondary)" }}>Target prospects</span>
+      {/* Metric Stats */}
+      <div className="stat-grid">
+        <div className="stat-card">
+          <div className="stat-label">
+            <span>Enrolled Prospects</span>
+            <UserPlus size={14} strokeWidth={1.75} style={{ color: "var(--text-muted)" }} />
+          </div>
+          <div className="stat-value">{campaign?.enrolledCount || enrolledContacts.length}</div>
+          <div className="stat-sub">Target list</div>
         </div>
 
-        <div className="ios-glass" style={{ padding: "20px" }}>
-          <span style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>Emails Sent</span>
-          <p style={{ fontSize: "28px", fontWeight: 800, color: "var(--accent)", margin: "4px 0" }}>
-            {campaign?.sentCount || 0}
-          </p>
-          <span style={{ fontSize: "11.5px", color: "var(--text-secondary)" }}>Via connected Gmail</span>
+        <div className="stat-card">
+          <div className="stat-label">
+            <span>Emails Dispatched</span>
+            <Send size={14} strokeWidth={1.75} style={{ color: "var(--text-muted)" }} />
+          </div>
+          <div className="stat-value">{campaign?.sentCount || 0}</div>
+          <div className="stat-sub">Via Gmail API</div>
         </div>
 
-        <div className="ios-glass" style={{ padding: "20px" }}>
-          <span style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>Replies</span>
-          <p style={{ fontSize: "28px", fontWeight: 800, color: "var(--success)", margin: "4px 0" }}>
+        <div className="stat-card">
+          <div className="stat-label">
+            <span>Replies Detected</span>
+            <MessageSquare size={14} strokeWidth={1.75} style={{ color: "var(--text-muted)" }} />
+          </div>
+          <div className="stat-value" style={{ color: "#34d399" }}>
             {campaign?.repliedCount || 0}
-          </p>
-          <span style={{ fontSize: "11.5px", color: "var(--text-secondary)" }}>Auto-paused sequences</span>
+          </div>
+          <div className="stat-sub">Sequence auto-paused</div>
         </div>
 
-        <div className="ios-glass" style={{ padding: "20px" }}>
-          <span style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>Reply Rate</span>
-          <p style={{ fontSize: "28px", fontWeight: 800, color: "var(--warning)", margin: "4px 0" }}>
-            {campaign?.replyRate || "15.8%"}
-          </p>
-          <span style={{ fontSize: "11.5px", color: "var(--text-secondary)" }}>Positive sentiment tracked</span>
+        <div className="stat-card">
+          <div className="stat-label">
+            <span>Reply Rate</span>
+            <Mail size={14} strokeWidth={1.75} style={{ color: "var(--text-muted)" }} />
+          </div>
+          <div className="stat-value">{campaign?.replyRate || "0.0%"}</div>
+          <div className="stat-sub">Positive conversion</div>
         </div>
       </div>
 
-      {/* Sequence Steps Section */}
-      <div className="ios-glass" style={{ padding: "24px" }}>
-        <h3 style={{ fontSize: "16px", fontWeight: 750, marginBottom: "16px", color: "#ffffff" }}>
-          Sequence Steps ({steps.length})
+      {/* Sequence Cadence Steps */}
+      <div className="card">
+        <h3 style={{ fontSize: "14px", fontWeight: 650, color: "var(--text-primary)", marginBottom: "14px" }}>
+          Cadence Steps ({steps.length})
         </h3>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           {steps.map((s) => (
             <div
               key={s.number}
               style={{
-                padding: "18px",
-                background: "rgba(255, 255, 255, 0.03)",
+                padding: "14px 16px",
+                backgroundColor: "var(--bg-surface-elevated)",
                 border: "1px solid var(--border-default)",
-                borderRadius: "14px",
+                borderRadius: "var(--radius-sm)",
                 display: "flex",
-                gap: "16px",
+                gap: "14px",
               }}
             >
               <div
                 style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "10px",
-                  background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "var(--radius-xs)",
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border-default)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontWeight: 800,
-                  fontSize: "14px",
-                  color: "#ffffff",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                  fontFamily: "var(--font-mono)",
                   flexShrink: 0,
                 }}
               >
                 {s.number}
               </div>
 
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
-                  <h4 style={{ fontSize: "14px", fontWeight: 700, color: "#ffffff" }}>
+                  <h4 style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--text-primary)" }}>
                     {s.subject}
                   </h4>
                   <span
                     style={{
                       fontSize: "11px",
                       padding: "2px 8px",
-                      borderRadius: "100px",
-                      background: "rgba(255, 255, 255, 0.08)",
-                      color: "var(--text-secondary)",
+                      borderRadius: "var(--radius-full)",
+                      backgroundColor: "var(--bg-surface)",
+                      border: "1px solid var(--border-subtle)",
+                      color: "var(--text-tertiary)",
                     }}
                   >
                     {s.delayDescription}
@@ -266,7 +304,7 @@ export default function CampaignDetailPage({
 
                 <p
                   style={{
-                    fontSize: "12.5px",
+                    fontSize: "12px",
                     color: "var(--text-secondary)",
                     fontFamily: "var(--font-mono)",
                     whiteSpace: "pre-line",
@@ -281,29 +319,31 @@ export default function CampaignDetailPage({
         </div>
       </div>
 
-      {/* Enrolled Contacts Table */}
-      <div className="ios-glass" style={{ padding: "24px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-          <h3 style={{ fontSize: "16px", fontWeight: 750, color: "#ffffff" }}>
+      {/* Enrolled Prospects Table */}
+      <div className="card">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
+          <h3 style={{ fontSize: "14px", fontWeight: 650, color: "var(--text-primary)" }}>
             Enrolled Prospects ({enrolledContacts.length})
           </h3>
           <button
-            className="btn btn-secondary btn-sm"
+            type="button"
+            className="btn btn-outline btn-sm"
             onClick={() => setShowEnrollModal(true)}
           >
-            + Add Prospects
+            <UserPlus size={13} strokeWidth={2} />
+            <span>Add Prospects</span>
           </button>
         </div>
 
         {enrolledContacts.length > 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {enrolledContacts.map((c) => (
               <div
                 key={c.id}
                 style={{
-                  padding: "12px 16px",
-                  background: "rgba(255, 255, 255, 0.02)",
-                  borderRadius: "10px",
+                  padding: "10px 12px",
+                  backgroundColor: "var(--bg-surface-elevated)",
+                  borderRadius: "var(--radius-sm)",
                   border: "1px solid var(--border-subtle)",
                   display: "flex",
                   alignItems: "center",
@@ -313,11 +353,11 @@ export default function CampaignDetailPage({
                 <div>
                   <Link
                     href={`/contacts/${c.id}`}
-                    style={{ fontSize: "13.5px", fontWeight: 700, color: "#ffffff", textDecoration: "none" }}
+                    style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", textDecoration: "none" }}
                   >
                     {c.firstName} {c.lastName}
                   </Link>
-                  <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
+                  <p style={{ fontSize: "11.5px", color: "var(--text-tertiary)" }}>
                     {c.email} · {c.company}
                   </p>
                 </div>
@@ -326,8 +366,8 @@ export default function CampaignDetailPage({
             ))}
           </div>
         ) : (
-          <p style={{ fontSize: "13px", color: "var(--text-tertiary)", textAlign: "center", padding: "20px" }}>
-            No contacts enrolled yet. Click &ldquo;+ Enroll Contacts&rdquo; to assign prospects.
+          <p style={{ fontSize: "12.5px", color: "var(--text-muted)", textAlign: "center", padding: "16px" }}>
+            No contacts enrolled in this sequence yet.
           </p>
         )}
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Card from "./Card";
+import { Sparkles, X, RefreshCw, Lightbulb } from "lucide-react";
 
 interface AISequenceGeneratorProps {
   campaignName: string;
@@ -54,137 +54,142 @@ export default function AISequenceGenerator({
   return (
     <>
       <button
+        type="button"
         className="btn btn-secondary"
-        style={{
-          borderColor: "hsl(270 60% 40%)",
-          color: "hsl(270 80% 75%)",
-        }}
         onClick={() => {
           setIsOpen(true);
           if (steps.length === 0) handleGenerate();
         }}
       >
-        ✨ Generate Steps with Gemini
+        <Sparkles size={14} strokeWidth={2} style={{ color: "var(--accent)" }} />
+        <span>Generate Steps with AI</span>
       </button>
 
       {isOpen && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0, 0, 0, 0.75)",
-            backdropFilter: "blur(8px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "20px",
-          }}
-          onClick={() => setIsOpen(false)}
-        >
-          <div
-            style={{
-              maxWidth: "800px",
-              width: "100%",
-              maxHeight: "90vh",
-              overflowY: "auto",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Card glass>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: "var(--space-4)",
-                }}
+        <div className="modal-backdrop" onClick={() => setIsOpen(false)}>
+          <div className="modal-dialog" style={{ maxWidth: "720px" }} onClick={(e) => e.stopPropagation()}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "16px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Sparkles size={16} strokeWidth={2} style={{ color: "var(--accent)" }} />
+                <div>
+                  <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>
+                    AI Sequence Generator
+                  </h3>
+                  <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
+                    Generate full 4-step sequence cadences using Gemini Flash
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => setIsOpen(false)}
+                style={{ padding: "4px" }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "20px" }}>✨</span>
-                  <div>
-                    <h3 style={{ fontSize: "16px", fontWeight: 700 }}>
-                      AI Sequence Generator (Gemini Flash)
-                    </h3>
-                    <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
-                      Craft high-converting 4-step sequence templates automatically
-                    </p>
-                  </div>
-                </div>
-                <button
-                  className="btn btn-ghost btn-icon"
-                  onClick={() => setIsOpen(false)}
-                >
-                  ✕
-                </button>
+                <X size={14} />
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "12px" }}>
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "4px" }}>
+                  Target Audience
+                </label>
+                <input
+                  type="text"
+                  className="input"
+                  value={audience}
+                  onChange={(e) => setAudience(e.target.value)}
+                />
               </div>
-
-              <div className="grid-2" style={{ marginBottom: "var(--space-4)" }}>
-                <div>
-                  <label className="input-label" style={{ marginBottom: "4px", display: "block" }}>
-                    Target Audience
-                  </label>
-                  <input
-                    type="text"
-                    className="input"
-                    style={{ width: "100%" }}
-                    value={audience}
-                    onChange={(e) => setAudience(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="input-label" style={{ marginBottom: "4px", display: "block" }}>
-                    Product / Core Offer
-                  </label>
-                  <input
-                    type="text"
-                    className="input"
-                    style={{ width: "100%" }}
-                    value={product}
-                    onChange={(e) => setProduct(e.target.value)}
-                  />
-                </div>
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "4px" }}>
+                  Product / Core Offer
+                </label>
+                <input
+                  type="text"
+                  className="input"
+                  value={product}
+                  onChange={(e) => setProduct(e.target.value)}
+                />
               </div>
+            </div>
 
-              <div style={{ marginBottom: "var(--space-5)" }}>
-                <button
-                  className="btn btn-primary"
-                  onClick={handleGenerate}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Generating with Gemini..." : "Generate 4-Step Sequence"}
-                </button>
+            <div style={{ marginBottom: "16px" }}>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={handleGenerate}
+                disabled={isLoading}
+              >
+                <RefreshCw size={12} strokeWidth={2} className={isLoading ? "animate-spin" : ""} />
+                <span>{isLoading ? "Generating..." : "Generate 4-Step Cadence"}</span>
+              </button>
+            </div>
+
+            {isLoading && (
+              <div style={{ padding: "32px", textAlign: "center", color: "var(--text-muted)", fontSize: "12.5px" }}>
+                <p>Gemini AI is drafting cold outreach copy and strategic sequence timing...</p>
               </div>
+            )}
 
-              {isLoading && (
-                <div style={{ padding: "40px", textAlign: "center", color: "var(--text-tertiary)" }}>
-                  <div style={{ fontSize: "28px", marginBottom: "8px" }}>⚡</div>
-                  <p>Gemini Flash is drafting personalized B2B outreach sequences...</p>
-                </div>
-              )}
-
-              {steps.length > 0 && !isLoading && (
-                <div style={{ display: "grid", gap: "var(--space-3)" }}>
-                  {steps.map((s) => (
-                    <div key={s.stepNumber} className="step-card">
-                      <div className="step-number">{s.stepNumber}</div>
-                      <div className="step-content">
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-                          <p className="step-subject">{s.subjectTemplate}</p>
-                          <span style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>{s.delayDescription}</span>
-                        </div>
-                        <p style={{ fontSize: "12px", color: "var(--text-secondary)", whiteSpace: "pre-line", marginBottom: "8px", background: "var(--bg-tertiary)", padding: "10px", borderRadius: "6px" }}>
-                          {s.bodyTemplate}
-                        </p>
-                        <p style={{ fontSize: "11px", color: "var(--accent)" }}>
-                          💡 Strategy: {s.rationale}
-                        </p>
+            {steps.length > 0 && !isLoading && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "360px", overflowY: "auto" }}>
+                {steps.map((s) => (
+                  <div
+                    key={s.stepNumber}
+                    style={{
+                      padding: "12px 14px",
+                      backgroundColor: "var(--bg-surface-elevated)",
+                      border: "1px solid var(--border-default)",
+                      borderRadius: "var(--radius-sm)",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}>
+                          Step {s.stepNumber}:
+                        </span>
+                        <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)" }}>
+                          {s.subjectTemplate}
+                        </span>
                       </div>
+                      <span style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>
+                        {s.delayDescription}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              )}
-            </Card>
+
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "var(--text-secondary)",
+                        fontFamily: "var(--font-mono)",
+                        whiteSpace: "pre-line",
+                        backgroundColor: "var(--bg-surface)",
+                        padding: "8px 10px",
+                        borderRadius: "var(--radius-xs)",
+                        border: "1px solid var(--border-subtle)",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      {s.bodyTemplate}
+                    </p>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "var(--text-tertiary)" }}>
+                      <Lightbulb size={12} strokeWidth={2} style={{ color: "var(--accent)" }} />
+                      <span>Strategy: {s.rationale}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

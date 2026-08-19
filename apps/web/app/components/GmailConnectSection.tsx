@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Mail, CheckCircle2, AlertCircle, X, Send, Unlink } from "lucide-react";
 
 interface GmailAccount {
   email: string;
@@ -93,7 +94,7 @@ export default function GmailConnectSection() {
     return (
       <div className="settings-section">
         <h2 className="settings-section-title">Gmail Connection</h2>
-        <p style={{ color: "var(--text-tertiary)", fontSize: "13px" }}>Checking Gmail connection status...</p>
+        <p style={{ color: "var(--text-muted)", fontSize: "12.5px" }}>Checking connection status...</p>
       </div>
     );
   }
@@ -105,27 +106,29 @@ export default function GmailConnectSection() {
       {errorMessage && (
         <div
           style={{
-            padding: "12px 16px",
+            padding: "10px 14px",
             background: "var(--danger-soft)",
             color: "var(--danger)",
-            borderRadius: "8px",
-            fontSize: "13px",
-            marginBottom: "var(--space-4)",
+            borderRadius: "var(--radius-sm)",
+            fontSize: "12.5px",
+            marginBottom: "16px",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            border: "1px solid var(--danger-border)",
           }}
         >
-          <div>
-            <p style={{ fontWeight: 650, marginBottom: "2px" }}>⚠️ Google OAuth Notice</p>
-            <p style={{ opacity: 0.9 }}>{errorMessage}</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <AlertCircle size={15} strokeWidth={2} />
+            <span>{errorMessage}</span>
           </div>
           <button
-            className="btn btn-ghost"
-            style={{ color: "var(--danger)", padding: "4px 8px" }}
+            type="button"
+            className="btn btn-ghost btn-sm"
+            style={{ color: "var(--danger)", padding: "2px" }}
             onClick={() => setErrorMessage(null)}
           >
-            ✕
+            <X size={14} />
           </button>
         </div>
       )}
@@ -143,7 +146,7 @@ export default function GmailConnectSection() {
               <span className="badge badge-success">
                 <span className="badge-dot" />Connected
               </span>
-              <span className="settings-row-value" style={{ fontWeight: 600 }}>
+              <span style={{ fontWeight: 600, color: "var(--text-primary)", fontFamily: "var(--font-mono)", fontSize: "12.5px" }}>
                 {account.email}
               </span>
             </div>
@@ -151,24 +154,35 @@ export default function GmailConnectSection() {
 
           <div className="settings-row">
             <div className="settings-row-info">
-              <p className="settings-row-label">Connected Since</p>
-              <p className="settings-row-description">Session created timestamp.</p>
+              <p className="settings-row-label">Session Timestamp</p>
+              <p className="settings-row-description">Authorized date.</p>
             </div>
-            <span className="settings-row-value">
+            <span style={{ color: "var(--text-secondary)", fontSize: "12.5px", fontFamily: "var(--font-mono)" }}>
               {new Date(account.connectedAt).toLocaleDateString()}
             </span>
           </div>
 
-          {/* Controlled Test Send Box */}
-          <div style={{ marginTop: "var(--space-5)", padding: "var(--space-4)", background: "var(--bg-tertiary)", borderRadius: "8px" }}>
-            <h3 style={{ fontSize: "14px", fontWeight: 650, marginBottom: "var(--space-2)" }}>
-              🧪 Controlled Test Recipient Verification
-            </h3>
-            <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginBottom: "var(--space-3)" }}>
-              Send an instant verification email to test your Gmail connection before launching live campaigns.
+          {/* Test Email Verification Box */}
+          <div
+            style={{
+              marginTop: "16px",
+              padding: "16px",
+              backgroundColor: "var(--bg-surface-elevated)",
+              border: "1px solid var(--border-default)",
+              borderRadius: "var(--radius-sm)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+              <Send size={15} strokeWidth={1.75} style={{ color: "var(--text-primary)" }} />
+              <h3 style={{ fontSize: "13px", fontWeight: 650, color: "var(--text-primary)" }}>
+                Test Send Verification
+              </h3>
+            </div>
+            <p style={{ fontSize: "12px", color: "var(--text-tertiary)", marginBottom: "12px" }}>
+              Send an immediate test message through the Gmail API to verify your connection.
             </p>
 
-            <div style={{ display: "flex", gap: "var(--space-2)", maxWidth: "520px", marginBottom: "var(--space-3)" }}>
+            <div style={{ display: "flex", gap: "8px", maxWidth: "480px" }}>
               <input
                 type="email"
                 className="input"
@@ -178,41 +192,49 @@ export default function GmailConnectSection() {
                 onChange={(e) => setTestRecipient(e.target.value)}
               />
               <button
-                className="btn btn-primary"
+                type="button"
+                className="btn btn-secondary"
                 onClick={handleSendTest}
                 disabled={sendingTest || !testRecipient}
               >
-                {sendingTest ? "Sending..." : "Send Test Email"}
+                {sendingTest ? "Sending..." : "Send Test"}
               </button>
             </div>
 
             {testResult && (
               <div
                 style={{
-                  padding: "10px 14px",
-                  borderRadius: "6px",
-                  fontSize: "13px",
+                  marginTop: "10px",
+                  padding: "8px 12px",
+                  borderRadius: "var(--radius-xs)",
+                  fontSize: "12px",
                   background: testResult.success ? "var(--success-soft)" : "var(--danger-soft)",
-                  color: testResult.success ? "var(--success)" : "var(--danger)",
+                  color: testResult.success ? "#34d399" : "#f87171",
+                  border: testResult.success ? "1px solid var(--success-border)" : "1px solid var(--danger-border)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
                 }}
               >
                 {testResult.success ? (
-                  <div>
-                    <p style={{ fontWeight: 600 }}>✓ Test email delivered successfully!</p>
-                    <p style={{ fontSize: "11px", opacity: 0.85, marginTop: "2px" }}>
-                      Message ID: {testResult.messageId} · Thread ID: {testResult.threadId}
-                    </p>
-                  </div>
+                  <>
+                    <CheckCircle2 size={14} strokeWidth={2} />
+                    <span>Test email delivered successfully (ID: {testResult.messageId})</span>
+                  </>
                 ) : (
-                  <p>✕ {testResult.error}</p>
+                  <>
+                    <AlertCircle size={14} strokeWidth={2} />
+                    <span>{testResult.error}</span>
+                  </>
                 )}
               </div>
             )}
           </div>
 
-          <div style={{ marginTop: "var(--space-4)", display: "flex", justifyContent: "flex-end" }}>
-            <button className="btn btn-danger" onClick={handleDisconnect}>
-              Disconnect Mailbox
+          <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end" }}>
+            <button type="button" className="btn btn-danger btn-sm" onClick={handleDisconnect}>
+              <Unlink size={13} strokeWidth={1.75} />
+              <span>Disconnect Mailbox</span>
             </button>
           </div>
         </>
@@ -225,7 +247,8 @@ export default function GmailConnectSection() {
             </p>
           </div>
           <a href="/api/auth/google/connect" className="btn btn-primary">
-            Connect Gmail Account
+            <Mail size={14} strokeWidth={1.75} />
+            <span>Connect Gmail Account</span>
           </a>
         </div>
       )}

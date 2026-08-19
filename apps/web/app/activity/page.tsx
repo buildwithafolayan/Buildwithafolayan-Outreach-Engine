@@ -1,4 +1,14 @@
 import type { Metadata } from "next";
+import {
+  MessageSquare,
+  Send,
+  Pause,
+  UserPlus,
+  UploadCloud,
+  Link2,
+  Play,
+  ShieldCheck,
+} from "lucide-react";
 import Header from "../components/Header";
 
 export const metadata: Metadata = {
@@ -9,124 +19,143 @@ const eventTypes = ["All Events", "Emails Sent", "Replies", "Pauses", "Errors", 
 
 const events = [
   {
-    icon: "📩",
-    dotClass: "dot-success",
+    icon: MessageSquare,
     event: "Reply received from Sarah Chen",
     meta: "Q3 Developer Outreach · Step 2 · Positive sentiment detected",
     time: "2 min ago",
-    type: "reply",
+    badgeColor: "#34d399",
   },
   {
-    icon: "✉️",
-    dotClass: "dot-info",
+    icon: Send,
     event: "Email sent to David Kim",
     meta: "Q3 Developer Outreach · Step 2 · Subject: Quick follow-up on developer tools",
     time: "1 hour ago",
-    type: "send",
+    badgeColor: "var(--text-secondary)",
   },
   {
-    icon: "⏸",
-    dotClass: "dot-warning",
+    icon: Pause,
     event: "Enrollment paused — Sarah Chen",
     meta: "Q3 Developer Outreach · Reason: Reply detected · All pending sends cancelled",
     time: "2 min ago",
-    type: "pause",
+    badgeColor: "#fbbf24",
   },
   {
-    icon: "✉️",
-    dotClass: "dot-info",
+    icon: Send,
     event: "Email sent to Tom Rivera",
     meta: "Q3 Developer Outreach · Step 1 · Subject: Helping BuildFast ship faster",
     time: "3 hours ago",
-    type: "send",
+    badgeColor: "var(--text-secondary)",
   },
   {
-    icon: "✉️",
-    dotClass: "dot-info",
+    icon: Send,
     event: "Email sent to Priya Sharma",
     meta: "Q3 Developer Outreach · Step 2 · Subject: Quick follow-up on developer tools",
     time: "5 hours ago",
-    type: "send",
+    badgeColor: "var(--text-secondary)",
   },
   {
-    icon: "📋",
-    dotClass: "",
+    icon: UserPlus,
     event: "3 contacts enrolled in Q3 Developer Outreach",
     meta: "Tom Rivera, Priya Sharma, Lisa Park · Scheduled for working hours",
     time: "Yesterday",
-    type: "system",
+    badgeColor: "var(--text-secondary)",
   },
   {
-    icon: "⬆️",
-    dotClass: "",
+    icon: UploadCloud,
     event: "CSV import completed",
-    meta: "q3-targets.csv · 24 imported, 2 duplicates skipped, 1 invalid",
+    meta: "q3-targets.csv · 24 imported, 2 duplicates skipped",
     time: "2 days ago",
-    type: "system",
+    badgeColor: "var(--text-secondary)",
   },
   {
-    icon: "🔗",
-    dotClass: "dot-success",
+    icon: Link2,
     event: "Gmail account connected",
-    meta: "hello@yourdomain.com · OAuth verified · Watch established",
+    meta: "Operator account verified via OAuth 2.0",
     time: "3 days ago",
-    type: "system",
+    badgeColor: "#34d399",
   },
   {
-    icon: "🚀",
-    dotClass: "dot-info",
+    icon: Play,
     event: "Campaign activated — Q3 Developer Outreach",
     meta: "4 steps · 24 contacts enrolled · First sends scheduled",
     time: "3 days ago",
-    type: "system",
+    badgeColor: "var(--text-secondary)",
   },
   {
-    icon: "🔒",
-    dotClass: "",
+    icon: ShieldCheck,
     event: "Global sending enabled",
-    meta: "Controlled test passed · Rate limits active: 20/day, 5/hour",
+    meta: "Safety guardrails active · Rate limits: 20/day, 5/hour",
     time: "3 days ago",
-    type: "system",
+    badgeColor: "#34d399",
   },
 ];
 
 export default function ActivityPage() {
   return (
-    <div className="animate-in">
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
       <Header
-        eyebrow="Activity"
-        title="Activity feed"
-        description="A chronological record of every action across your campaigns, contacts, and system."
+        eyebrow="Audit Log"
+        title="Activity Stream"
+        description="Chronological log of outreach dispatches, reply triggers, and operator actions."
       />
 
-      {/* Filters */}
+      {/* Filter Chips */}
       <div className="filter-bar">
-        {eventTypes.map((f) => (
-          <button key={f} className={`filter-chip${f === "All Events" ? " active" : ""}`}>
+        {eventTypes.map((f, i) => (
+          <button key={f} type="button" className={`filter-chip${i === 0 ? " active" : ""}`}>
             {f}
           </button>
         ))}
       </div>
 
-      {/* Timeline */}
+      {/* Timeline Card */}
       <div className="card">
-        <div className="timeline">
-          {events.map(({ icon, dotClass, event, meta, time }, i) => (
-            <div className="timeline-item" key={i}>
-              <div className={`timeline-dot ${dotClass}`}>{icon}</div>
-              <div className="timeline-content">
-                <p className="timeline-event">{event}</p>
-                <p className="timeline-meta">{meta}</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          {events.map(({ icon: Icon, event, meta, time, badgeColor }, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "12px",
+                padding: "10px 12px",
+                backgroundColor: "var(--bg-surface-elevated)",
+                border: "1px solid var(--border-subtle)",
+                borderRadius: "var(--radius-sm)",
+              }}
+            >
+              <div
+                style={{
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "var(--radius-xs)",
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border-default)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: badgeColor,
+                  flexShrink: 0,
+                }}
+              >
+                <Icon size={13} strokeWidth={1.75} />
               </div>
-              <span style={{ fontSize: "11px", color: "var(--text-muted)", whiteSpace: "nowrap", flexShrink: 0 }}>{time}</span>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)" }}>
+                  {event}
+                </p>
+                <p style={{ fontSize: "11.5px", color: "var(--text-tertiary)", marginTop: "1px" }}>
+                  {meta}
+                </p>
+              </div>
+
+              <span style={{ fontSize: "11px", color: "var(--text-muted)", flexShrink: 0, fontFamily: "var(--font-mono)" }}>
+                {time}
+              </span>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Load more */}
-      <div style={{ textAlign: "center", marginTop: "var(--space-6)" }}>
-        <button className="btn btn-secondary">Load More Events</button>
       </div>
     </div>
   );

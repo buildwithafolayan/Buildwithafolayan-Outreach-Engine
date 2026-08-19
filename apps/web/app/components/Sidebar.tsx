@@ -3,43 +3,47 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  LayoutDashboard,
+  Users,
+  Send,
+  Clock,
+  BarChart3,
+  Settings,
+  Lock,
+  Mail,
+} from "lucide-react";
 
 const navItems = [
   {
     href: "/",
     label: "Dashboard",
-    icon: "⊞",
-    color: "linear-gradient(135deg, #007aff, #0056b3)",
+    icon: LayoutDashboard,
   },
   {
     href: "/contacts",
     label: "Contacts",
-    icon: "◉",
-    color: "linear-gradient(135deg, #00c7be, #009688)",
+    icon: Users,
   },
   {
     href: "/campaigns",
     label: "Campaigns",
-    icon: "◈",
-    color: "linear-gradient(135deg, #af52de, #7928ca)",
+    icon: Send,
   },
   {
     href: "/activity",
     label: "Activity",
-    icon: "◷",
-    color: "linear-gradient(135deg, #ff9500, #e65100)",
+    icon: Clock,
   },
   {
     href: "/analytics",
     label: "Analytics",
-    icon: "◩",
-    color: "linear-gradient(135deg, #ff2d55, #c2185b)",
+    icon: BarChart3,
   },
   {
     href: "/settings",
     label: "Settings",
-    icon: "⚙",
-    color: "linear-gradient(135deg, #64748b, #334155)",
+    icon: Settings,
   },
 ];
 
@@ -83,87 +87,81 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar" aria-label="Primary navigation">
-      {/* Apple Brand Identity */}
+      {/* Brand Identity */}
       <div className="sidebar-brand">
         <div className="sidebar-brand-icon" aria-hidden="true">
           B
         </div>
         <div>
           <span className="sidebar-brand-text">BuildWithAfolayan</span>
-          <span
-            style={{
-              display: "block",
-              fontSize: "10px",
-              fontWeight: 600,
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-              color: "var(--text-tertiary)",
-            }}
-          >
-            Private Outreach
-          </span>
+          <span className="sidebar-brand-sub">Outreach Engine</span>
         </div>
       </div>
 
-      {/* Nav Menu */}
+      {/* Navigation Menu */}
       <nav className="sidebar-nav">
         <span className="sidebar-section-label">Workspace</span>
-        {navItems.map(({ href, label, icon, color }) => (
-          <Link
-            key={href}
-            href={href}
-            className={`sidebar-link${isActive(href) ? " active" : ""}`}
-            aria-current={isActive(href) ? "page" : undefined}
-          >
-            <div
-              className="sidebar-link-icon-wrap"
-              style={{
-                background: color,
-                color: "#ffffff",
-                boxShadow: isActive(href)
-                  ? "0 4px 10px rgba(0, 0, 0, 0.3)"
-                  : "0 2px 6px rgba(0, 0, 0, 0.2)",
-              }}
+        {navItems.map(({ href, label, icon: Icon }) => {
+          const active = isActive(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`sidebar-link${active ? " active" : ""}`}
+              aria-current={active ? "page" : undefined}
             >
-              {icon}
-            </div>
-            <span>{label}</span>
-          </Link>
-        ))}
+              <Icon
+                size={16}
+                strokeWidth={active ? 2 : 1.75}
+                className="sidebar-link-icon"
+              />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
       </nav>
 
-      {/* Dynamic Island Status Widget */}
+      {/* Status & Session Footer */}
       <div className="sidebar-footer">
-        <div className="sidebar-island-pill">
+        <div
+          style={{
+            backgroundColor: "var(--bg-surface-elevated)",
+            border: "1px solid var(--border-default)",
+            borderRadius: "var(--radius-sm)",
+            padding: "10px 12px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
+          }}
+        >
+          {/* Engine Status */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <span
                 style={{
-                  width: "8px",
-                  height: "8px",
+                  width: "6px",
+                  height: "6px",
                   borderRadius: "50%",
-                  background: globalSending ? "var(--success)" : "var(--warning)",
-                  boxShadow: `0 0 10px ${globalSending ? "var(--success)" : "var(--warning)"}`,
+                  backgroundColor: globalSending ? "var(--success)" : "var(--warning)",
                 }}
               />
-              <span style={{ fontSize: "12px", fontWeight: 650, color: "var(--text-primary)" }}>
-                {globalSending ? "Sending Active" : "Sending Paused"}
+              <span style={{ fontSize: "11.5px", fontWeight: 600, color: "var(--text-primary)" }}>
+                {globalSending ? "Dispatch Active" : "Dispatch Paused"}
               </span>
             </div>
             <span
               style={{
                 fontSize: "10px",
-                fontWeight: 600,
-                padding: "2px 6px",
-                borderRadius: "100px",
-                background: "rgba(255, 255, 255, 0.08)",
-                color: "var(--text-secondary)",
+                fontFamily: "var(--font-mono)",
+                color: "var(--text-muted)",
+                textTransform: "uppercase",
               }}
             >
-              Live
+              OS v2.1
             </span>
           </div>
 
+          {/* Mailbox & Session Lock */}
           <div
             style={{
               display: "flex",
@@ -175,17 +173,23 @@ export default function Sidebar() {
               borderTop: "1px solid var(--border-subtle)",
             }}
           >
-            <span
+            <div
               style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
-                maxWidth: "140px",
+                maxWidth: "130px",
               }}
-              title={gmailEmail || "No Gmail mailbox connected"}
+              title={gmailEmail || "No Gmail mailbox linked"}
             >
-              {gmailEmail ? `✉ ${gmailEmail}` : "No Gmail linked"}
-            </span>
+              <Mail size={12} strokeWidth={1.75} style={{ flexShrink: 0 }} />
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                {gmailEmail ? gmailEmail.split("@")[0] : "Offline"}
+              </span>
+            </div>
 
             <button
               onClick={handleLogout}
@@ -195,19 +199,19 @@ export default function Sidebar() {
                 border: "none",
                 color: "var(--text-tertiary)",
                 cursor: "pointer",
-                fontSize: "11px",
-                fontWeight: 600,
-                padding: "2px 4px",
                 display: "flex",
                 alignItems: "center",
-                gap: "3px",
-                transition: "color 0.15s ease",
+                gap: "4px",
+                fontSize: "11px",
+                fontWeight: 500,
+                transition: "color 0.12s ease",
               }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "var(--danger)")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-tertiary)")}
               title="Lock private session and logout"
             >
-              {isLoggingOut ? "Locking..." : "🔒 Lock"}
+              <Lock size={12} strokeWidth={1.75} />
+              <span>{isLoggingOut ? "Locking..." : "Lock"}</span>
             </button>
           </div>
         </div>

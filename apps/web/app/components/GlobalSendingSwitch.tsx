@@ -39,31 +39,48 @@ export default function GlobalSendingSwitch({ onToggle }: GlobalSendingSwitchPro
   };
 
   if (loading) {
-    return <span style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>Loading...</span>;
+    return <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>Loading...</span>;
   }
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
       <span
         style={{
-          fontSize: "13px",
-          color: enabled ? "var(--success)" : "var(--warning)",
+          fontSize: "12.5px",
+          color: enabled ? "#34d399" : "var(--text-tertiary)",
           fontWeight: 600,
         }}
       >
-        {enabled ? "Active (Sending Enabled)" : "Paused"}
+        {enabled ? "Active" : "Paused"}
       </span>
       <button
-        className={`toggle${enabled ? " active" : ""}`}
+        type="button"
+        role="switch"
+        aria-checked={enabled}
         onClick={handleToggle}
-        aria-label="Toggle global sending"
         style={{
-          background: enabled ? "var(--success)" : "var(--border-default)",
+          width: "38px",
+          height: "22px",
+          borderRadius: "9999px",
+          backgroundColor: enabled ? "#10b981" : "var(--border-strong)",
+          border: "none",
+          cursor: "pointer",
+          position: "relative",
+          transition: "background-color 0.15s ease",
+          padding: "2px",
+          display: "flex",
+          alignItems: "center",
         }}
       >
         <span
           style={{
-            transform: enabled ? "translateX(20px)" : "translateX(2px)",
+            width: "18px",
+            height: "18px",
+            borderRadius: "50%",
+            backgroundColor: "#ffffff",
+            transform: enabled ? "translateX(16px)" : "translateX(0px)",
+            transition: "transform 0.15s ease",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.4)",
           }}
         />
       </button>
