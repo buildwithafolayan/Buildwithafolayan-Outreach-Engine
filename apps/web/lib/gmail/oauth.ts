@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { encryptData, decryptData } from "@/lib/auth/session";
 
 const GOOGLE_AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
@@ -12,7 +13,7 @@ export const GMAIL_SCOPES = [
   "https://www.googleapis.com/auth/gmail.readonly",
 ];
 
-export function getGoogleOAuthUrl(customRedirectUri?: string): string {
+export function getGoogleOAuthUrl(customRedirectUri?: string, state?: string): string {
   const clientId = (
     process.env.GOOGLE_CLIENT_ID ||
     process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
@@ -39,6 +40,10 @@ export function getGoogleOAuthUrl(customRedirectUri?: string): string {
     prompt: "consent",
     include_granted_scopes: "true",
   });
+
+  if (state) {
+    params.set("state", state);
+  }
 
   return `${GOOGLE_AUTH_ENDPOINT}?${params.toString()}`;
 }
@@ -156,8 +161,52 @@ export async function refreshAccessToken(refreshToken: string): Promise<string> 
 
 const GMAIL_ACCOUNT_COOKIE = "gmail_account_session";
 
+interface StoredGmailSession {
+  email: string;
+  name?: string;
+  picture?: string;
+  accessToken: string;
+  refreshToken?: string;
+  connectedAt: string;
+  status: string;
+}
+
 /**
- * Store connected Gmail account session in secure HTTP-only cookies.
+ * Retrieve and decrypt the raw session payload from the HTTP-only cookie.
+ */
+export async function getRawGmailSession(): Promise<StoredGmailSession | null> {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get(GMAIL_ACCOUNT_COOKIE);
+
+  if (!sessionCookie || !sessionCookie.value) {
+    return null;
+  }
+
+  // Check if encrypted format (contains dot separating IV and ciphertext)
+  if (sessionCookie.value.includes(".")) {
+    const decrypted = await decryptData(sessionCookie.value);
+    if (decrypted) {
+      try {
+        return JSON.parse(decrypted) as StoredGmailSession;
+      } catch {
+        return null;
+      }
+    }
+  }
+
+  // Fallback for legacy unencrypted JSON
+  try {
+    const data = JSON.parse(sessionCookie.value);
+    // Upgrade legacy session to encrypted
+    await saveGmailSession(data);
+    return data as StoredGmailSession;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Store connected Gmail account session with AES-GCM encrypted tokens in secure HTTP-only cookies.
  */
 export async function saveGmailSession(account: {
   email: string;
@@ -167,7 +216,7 @@ export async function saveGmailSession(account: {
   refreshToken?: string;
 }) {
   const cookieStore = await cookies();
-  const sessionData = {
+  const sessionData: StoredGmailSession = {
     email: account.email,
     name: account.name,
     picture: account.picture,
@@ -177,7 +226,9 @@ export async function saveGmailSession(account: {
     status: "CONNECTED",
   };
 
-  cookieStore.set(GMAIL_ACCOUNT_COOKIE, JSON.stringify(sessionData), {
+  const encrypted = await encryptData(JSON.stringify(sessionData));
+
+  cookieStore.set(GMAIL_ACCOUNT_COOKIE, encrypted, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -187,29 +238,23 @@ export async function saveGmailSession(account: {
 }
 
 /**
- * Retrieve the current connected Gmail account info.
+ * Retrieve the current connected Gmail account info (without exposing tokens).
  */
 export async function getConnectedGmailAccount(): Promise<GmailAccountInfo | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get(GMAIL_ACCOUNT_COOKIE);
+  const session = await getRawGmailSession();
 
-  if (!sessionCookie || !sessionCookie.value) {
+  if (!session) {
     return null;
   }
 
-  try {
-    const data = JSON.parse(sessionCookie.value);
-    return {
-      email: data.email,
-      name: data.name,
-      picture: data.picture,
-      connectedAt: data.connectedAt,
-      hasRefreshToken: Boolean(data.refreshToken),
-      status: "CONNECTED",
-    };
-  } catch {
-    return null;
-  }
+  return {
+    email: session.email,
+    name: session.name,
+    picture: session.picture,
+    connectedAt: session.connectedAt,
+    hasRefreshToken: Boolean(session.refreshToken),
+    status: "CONNECTED",
+  };
 }
 
 /**
@@ -232,14 +277,12 @@ export async function sendGmailMessage(params: {
   references?: string;
   threadId?: string;
 }): Promise<{ messageId: string; threadId: string }> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get(GMAIL_ACCOUNT_COOKIE);
+  const session = await getRawGmailSession();
 
-  if (!sessionCookie?.value) {
+  if (!session) {
     throw new Error("No Gmail account connected. Please connect Gmail first.");
   }
 
-  const session = JSON.parse(sessionCookie.value);
   let accessToken = session.accessToken;
 
   // Build RFC 2822 email message
@@ -288,13 +331,7 @@ export async function sendGmailMessage(params: {
   if (res.status === 401 && session.refreshToken) {
     accessToken = await refreshAccessToken(session.refreshToken);
     session.accessToken = accessToken;
-    cookieStore.set(GMAIL_ACCOUNT_COOKIE, JSON.stringify(session), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 30,
-    });
+    await saveGmailSession(session);
 
     res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
       method: "POST",

@@ -212,10 +212,9 @@ ASSISTANT (Favour):`;
 
   try {
     const candidateModels = [
-      process.env.GEMINI_MODEL || "gemini-3.6-flash",
-      "gemini-3.6-flash",
-      "gemini-2.0-flash-001",
+      process.env.GEMINI_MODEL || "gemini-2.0-flash",
       "gemini-2.0-flash",
+      "gemini-2.0-flash-001",
       "gemini-1.5-flash",
     ];
     const modelsToTry = Array.from(new Set(candidateModels));

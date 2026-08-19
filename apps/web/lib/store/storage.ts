@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
 export interface Contact {
   id: string;
@@ -57,6 +57,10 @@ export interface SystemSettings {
   adminEmail: string;
 }
 
+// ─────────────────────────────────────────────────────────────
+// DB ↔ JS mappers
+// ─────────────────────────────────────────────────────────────
+
 const DEFAULT_SETTINGS: SystemSettings = {
   globalSendingEnabled: false,
   testRecipient: "",
@@ -71,7 +75,6 @@ const DEFAULT_SETTINGS: SystemSettings = {
   adminEmail: "you@example.com",
 };
 
-// Initial default seed data
 const DEFAULT_CONTACTS: Contact[] = [
   {
     id: "c1",
@@ -171,75 +174,253 @@ const DEFAULT_CAMPAIGNS: Campaign[] = [
   },
 ];
 
-const CONTACTS_COOKIE = "outreach_contacts_store";
-const CAMPAIGNS_COOKIE = "outreach_campaigns_store";
-const SETTINGS_COOKIE = "outreach_settings_store";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fromDbContact(row: any): Contact {
+  return {
+    id: row.id,
+    firstName: row.first_name,
+    lastName: row.last_name ?? "",
+    email: row.email,
+    company: row.company,
+    website: row.website ?? undefined,
+    city: row.city ?? undefined,
+    industry: row.industry ?? undefined,
+    state: row.state,
+    source: row.source,
+    notes: row.notes ?? undefined,
+    tags: Array.isArray(row.tags) ? row.tags : [],
+    createdAt: row.created_at,
+    lastActivity: row.last_activity ?? undefined,
+  };
+}
+
+function toDbContact(c: Contact) {
+  return {
+    id: c.id,
+    first_name: c.firstName,
+    last_name: c.lastName ?? "",
+    email: c.email,
+    company: c.company,
+    website: c.website ?? null,
+    city: c.city ?? null,
+    industry: c.industry ?? null,
+    state: c.state,
+    source: c.source,
+    notes: c.notes ?? null,
+    tags: c.tags,
+    created_at: c.createdAt,
+    last_activity: c.lastActivity ?? null,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fromDbCampaign(row: any): Campaign {
+  return {
+    id: row.id,
+    name: row.name,
+    status: row.status as Campaign["status"],
+    description: row.description ?? "",
+    gmailAccount: row.gmail_account ?? undefined,
+    dailyLimit: row.daily_limit,
+    hourlyLimit: row.hourly_limit,
+    steps: Array.isArray(row.steps) ? row.steps : [],
+    enrolledCount: row.enrolled_count,
+    sentCount: row.sent_count,
+    repliedCount: row.replied_count,
+    replyRate: row.reply_rate,
+    createdAt: row.created_at,
+    nextAction: row.next_action ?? undefined,
+  };
+}
+
+function toDbCampaign(c: Campaign) {
+  return {
+    id: c.id,
+    name: c.name,
+    status: c.status,
+    description: c.description,
+    gmail_account: c.gmailAccount ?? null,
+    daily_limit: c.dailyLimit,
+    hourly_limit: c.hourlyLimit,
+    steps: c.steps,
+    enrolled_count: c.enrolledCount,
+    sent_count: c.sentCount,
+    replied_count: c.repliedCount,
+    reply_rate: c.replyRate,
+    created_at: c.createdAt,
+    next_action: c.nextAction ?? null,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fromDbSettings(row: any): SystemSettings {
+  return {
+    globalSendingEnabled: row.global_sending_enabled ?? false,
+    testRecipient: row.test_recipient ?? "",
+    dailyLimit: row.daily_limit ?? 20,
+    hourlyLimit: row.hourly_limit ?? 5,
+    failureThreshold: row.failure_threshold ?? 3,
+    timeZone: row.time_zone ?? "Africa/Lagos",
+    sendWindowStart: row.send_window_start ?? "09:00",
+    sendWindowEnd: row.send_window_end ?? "17:00",
+    activeDays: Array.isArray(row.active_days) ? row.active_days : ["Mon", "Tue", "Wed", "Thu", "Fri"],
+    randomizedDelayMinutes: row.randomized_delay_minutes ?? 15,
+    emailSignature: row.email_signature ?? undefined,
+    adminEmail: row.admin_email ?? "you@example.com",
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Contacts
+// ─────────────────────────────────────────────────────────────
 
 export async function getStoredContacts(): Promise<Contact[]> {
-  const cookieStore = await cookies();
-  const c = cookieStore.get(CONTACTS_COOKIE);
-  if (!c?.value) return DEFAULT_CONTACTS;
-  try {
-    return JSON.parse(c.value);
-  } catch {
+  const db = getSupabaseClient();
+  const { data, error } = await db
+    .from("contacts")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Supabase getStoredContacts error:", error.message);
     return DEFAULT_CONTACTS;
   }
+
+  // First-run: seed defaults if table is empty
+  if (!data || data.length === 0) {
+    const { error: seedError } = await db
+      .from("contacts")
+      .upsert(DEFAULT_CONTACTS.map(toDbContact), { onConflict: "id" });
+    if (seedError) console.error("Seed contacts error:", seedError.message);
+    return DEFAULT_CONTACTS;
+  }
+
+  return data.map(fromDbContact);
 }
 
-export async function saveStoredContacts(contacts: Contact[]) {
-  const cookieStore = await cookies();
-  cookieStore.set(CONTACTS_COOKIE, JSON.stringify(contacts), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-  });
+export async function saveStoredContacts(contacts: Contact[]): Promise<void> {
+  const db = getSupabaseClient();
+
+  // Fetch existing IDs so we can delete rows removed from the list
+  const { data: existing } = await db.from("contacts").select("id");
+  const existingIds: string[] = (existing ?? []).map((r: { id: string }) => r.id);
+  const newIds = contacts.map((c) => c.id);
+  const toDelete = existingIds.filter((id) => !newIds.includes(id));
+
+  if (contacts.length > 0) {
+    const { error } = await db
+      .from("contacts")
+      .upsert(contacts.map(toDbContact), { onConflict: "id" });
+    if (error) throw new Error(`Failed to save contacts: ${error.message}`);
+  }
+
+  if (toDelete.length > 0) {
+    const { error } = await db.from("contacts").delete().in("id", toDelete);
+    if (error) console.error("Failed to delete stale contacts:", error.message);
+  }
 }
+
+// ─────────────────────────────────────────────────────────────
+// Campaigns
+// ─────────────────────────────────────────────────────────────
 
 export async function getStoredCampaigns(): Promise<Campaign[]> {
-  const cookieStore = await cookies();
-  const c = cookieStore.get(CAMPAIGNS_COOKIE);
-  if (!c?.value) return DEFAULT_CAMPAIGNS;
-  try {
-    return JSON.parse(c.value);
-  } catch {
+  const db = getSupabaseClient();
+  const { data, error } = await db
+    .from("campaigns")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Supabase getStoredCampaigns error:", error.message);
     return DEFAULT_CAMPAIGNS;
   }
+
+  // First-run: seed defaults if table is empty
+  if (!data || data.length === 0) {
+    const { error: seedError } = await db
+      .from("campaigns")
+      .upsert(DEFAULT_CAMPAIGNS.map(toDbCampaign), { onConflict: "id" });
+    if (seedError) console.error("Seed campaigns error:", seedError.message);
+    return DEFAULT_CAMPAIGNS;
+  }
+
+  return data.map(fromDbCampaign);
 }
 
-export async function saveStoredCampaigns(campaigns: Campaign[]) {
-  const cookieStore = await cookies();
-  cookieStore.set(CAMPAIGNS_COOKIE, JSON.stringify(campaigns), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-  });
-}
+export async function saveStoredCampaigns(campaigns: Campaign[]): Promise<void> {
+  const db = getSupabaseClient();
 
-export async function getStoredSettings(): Promise<SystemSettings> {
-  const cookieStore = await cookies();
-  const c = cookieStore.get(SETTINGS_COOKIE);
-  if (!c?.value) return DEFAULT_SETTINGS;
-  try {
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(c.value) };
-  } catch {
-    return DEFAULT_SETTINGS;
+  const { data: existing } = await db.from("campaigns").select("id");
+  const existingIds: string[] = (existing ?? []).map((r: { id: string }) => r.id);
+  const newIds = campaigns.map((c) => c.id);
+  const toDelete = existingIds.filter((id) => !newIds.includes(id));
+
+  if (campaigns.length > 0) {
+    const { error } = await db
+      .from("campaigns")
+      .upsert(campaigns.map(toDbCampaign), { onConflict: "id" });
+    if (error) throw new Error(`Failed to save campaigns: ${error.message}`);
+  }
+
+  if (toDelete.length > 0) {
+    const { error } = await db.from("campaigns").delete().in("id", toDelete);
+    if (error) console.error("Failed to delete stale campaigns:", error.message);
   }
 }
 
-export async function saveStoredSettings(settings: Partial<SystemSettings>): Promise<SystemSettings> {
-  const current = await getStoredSettings();
-  const updated = { ...current, ...settings };
-  const cookieStore = await cookies();
-  cookieStore.set(SETTINGS_COOKIE, JSON.stringify(updated), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-  });
-  return updated;
+// ─────────────────────────────────────────────────────────────
+// Settings (single row, id = 1, seeded by SQL schema)
+// ─────────────────────────────────────────────────────────────
+
+export async function getStoredSettings(): Promise<SystemSettings> {
+  const db = getSupabaseClient();
+  const { data, error } = await db
+    .from("system_settings")
+    .select("*")
+    .eq("id", 1)
+    .single();
+
+  if (error || !data) {
+    console.error("Supabase getStoredSettings error:", error?.message);
+    return DEFAULT_SETTINGS;
+  }
+
+  return fromDbSettings(data);
 }
+
+export async function saveStoredSettings(
+  settings: Partial<SystemSettings>
+): Promise<SystemSettings> {
+  const db = getSupabaseClient();
+
+  // Map camelCase keys to snake_case for only the keys provided
+  const patch: Record<string, unknown> = {};
+  if (settings.globalSendingEnabled !== undefined) patch.global_sending_enabled = settings.globalSendingEnabled;
+  if (settings.testRecipient !== undefined) patch.test_recipient = settings.testRecipient;
+  if (settings.dailyLimit !== undefined) patch.daily_limit = settings.dailyLimit;
+  if (settings.hourlyLimit !== undefined) patch.hourly_limit = settings.hourlyLimit;
+  if (settings.failureThreshold !== undefined) patch.failure_threshold = settings.failureThreshold;
+  if (settings.timeZone !== undefined) patch.time_zone = settings.timeZone;
+  if (settings.sendWindowStart !== undefined) patch.send_window_start = settings.sendWindowStart;
+  if (settings.sendWindowEnd !== undefined) patch.send_window_end = settings.sendWindowEnd;
+  if (settings.activeDays !== undefined) patch.active_days = settings.activeDays;
+  if (settings.randomizedDelayMinutes !== undefined) patch.randomized_delay_minutes = settings.randomizedDelayMinutes;
+  if (settings.emailSignature !== undefined) patch.email_signature = settings.emailSignature;
+  if (settings.adminEmail !== undefined) patch.admin_email = settings.adminEmail;
+
+  const { data, error } = await db
+    .from("system_settings")
+    .update(patch)
+    .eq("id", 1)
+    .select()
+    .single();
+
+  if (error || !data) {
+    console.error("Supabase saveStoredSettings error:", error?.message);
+    return { ...DEFAULT_SETTINGS, ...settings };
+  }
+
+  return fromDbSettings(data);
+}
+

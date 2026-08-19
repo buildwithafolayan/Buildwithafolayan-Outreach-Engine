@@ -20,17 +20,72 @@ export function getAdminPassword(): string {
 
 /**
  * Constant-time comparison to prevent timing attacks.
+ * Unconditionally iterates across maxLen to avoid length-based timing leaks.
  */
 export function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) {
-    return false;
-  }
-
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) {
-    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  const maxLen = Math.max(a.length, b.length);
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < maxLen; i++) {
+    const charA = i < a.length ? a.charCodeAt(i) : 0;
+    const charB = i < b.length ? b.charCodeAt(i) : 0;
+    diff |= charA ^ charB;
   }
   return diff === 0;
+}
+
+/**
+ * Helper to derive an AES-GCM key from APP_SECRET using SHA-256.
+ */
+async function getEncryptionKey(): Promise<CryptoKey> {
+  const enc = new TextEncoder();
+  const secretBytes = enc.encode(getAppSecret());
+  const hash = await crypto.subtle.digest("SHA-256", secretBytes);
+  return await crypto.subtle.importKey(
+    "raw",
+    hash,
+    { name: "AES-GCM" },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+
+/**
+ * Encrypt a string using AES-256-GCM with a randomized 12-byte IV.
+ */
+export async function encryptData(plaintext: string): Promise<string> {
+  const key = await getEncryptionKey();
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder();
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    enc.encode(plaintext)
+  );
+  const ivB64 = base64UrlEncode(iv);
+  const dataB64 = base64UrlEncode(new Uint8Array(encrypted));
+  return `${ivB64}.${dataB64}`;
+}
+
+/**
+ * Decrypt an AES-256-GCM encrypted string. Returns null if invalid or tampered with.
+ */
+export async function decryptData(cipherText: string): Promise<string | null> {
+  try {
+    const parts = cipherText.split(".");
+    if (parts.length !== 2) return null;
+    const [ivB64, dataB64] = parts;
+    const iv = base64UrlDecode(ivB64);
+    const data = base64UrlDecode(dataB64);
+    const key = await getEncryptionKey();
+    const decrypted = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: iv.buffer as ArrayBuffer },
+      key,
+      data.buffer as ArrayBuffer
+    );
+    return new TextDecoder().decode(decrypted);
+  } catch {
+    return null;
+  }
 }
 
 /**

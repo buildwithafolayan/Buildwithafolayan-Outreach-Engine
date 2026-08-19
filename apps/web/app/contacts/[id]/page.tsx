@@ -30,48 +30,77 @@ export default function ContactDetailPage({
   const { id } = use(params);
   const [contact, setContact] = useState<Contact | null>(null);
   const [loading, setLoading] = useState(true);
+  const [updatingState, setUpdatingState] = useState(false);
+
+  const fetchContact = async () => {
+    try {
+      const res = await fetch(`/api/contacts/${id}`);
+      const data = await res.json();
+      if (res.ok && data.contact) {
+        setContact(data.contact);
+      } else {
+        setContact(null);
+      }
+    } catch (e) {
+      console.error("Failed to load contact:", e);
+      setContact(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetch("/api/contacts")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.contacts) {
-          const found = data.contacts.find((c: Contact) => c.id === id);
-          if (found) setContact(found);
-          else if (data.contacts.length > 0) setContact(data.contacts[0]);
-        }
-      })
-      .catch((e) => console.error(e))
-      .finally(() => setLoading(false));
+    fetchContact();
   }, [id]);
 
-  if (!contact && !loading) {
+  const handleStateChange = async (newState: string) => {
+    if (!contact) return;
+    setUpdatingState(true);
+    const oldState = contact.state;
+    setContact({ ...contact, state: newState });
+
+    try {
+      const res = await fetch(`/api/contacts/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state: newState }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        console.error("Failed to update contact status:", data.error);
+        setContact((prev) => (prev ? { ...prev, state: oldState } : null));
+      }
+    } catch (err) {
+      console.error("Error updating contact status:", err);
+      setContact((prev) => (prev ? { ...prev, state: oldState } : null));
+    } finally {
+      setUpdatingState(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ padding: "40px 0", color: "var(--text-secondary)" }}>
+        <p>Loading contact details...</p>
+      </div>
+    );
+  }
+
+  if (!contact) {
     return (
       <div style={{ padding: "40px 0" }}>
-        <p>Contact not found.</p>
-        <Link href="/contacts" className="btn btn-secondary" style={{ marginTop: "16px" }}>
+        <h2 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px" }}>Prospect Not Found</h2>
+        <p style={{ color: "var(--text-secondary)", marginBottom: "16px" }}>
+          The requested contact does not exist or has been removed.
+        </p>
+        <Link href="/contacts" className="btn btn-secondary">
           ← Back to Contacts
         </Link>
       </div>
     );
   }
 
-  const currentContact = contact || {
-    id: "c1",
-    firstName: "Sarah",
-    lastName: "Chen",
-    email: "sarah@techcorp.io",
-    company: "TechCorp",
-    website: "techcorp.io",
-    city: "San Francisco",
-    industry: "SaaS",
-    state: "REPLIED",
-    source: "CSV Import",
-    notes: "VP of Engineering. Scaling team. Interested in automation.",
-    tags: ["saas", "engineering-lead"],
-    createdAt: new Date().toISOString(),
-    lastActivity: "Replied 4 hours ago",
-  };
+  const currentContact = contact;
 
   const timeline = [
     {
@@ -125,7 +154,19 @@ export default function ContactDetailPage({
             {currentContact.city ? ` · ${currentContact.city}` : ""}
           </p>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <select
+            className="input"
+            style={{ padding: "7px 12px", fontSize: "12.5px", width: "auto" }}
+            value={currentContact.state}
+            disabled={updatingState}
+            onChange={(e) => handleStateChange(e.target.value)}
+          >
+            <option value="READY">Status: READY</option>
+            <option value="ENROLLED">Status: ENROLLED</option>
+            <option value="REPLIED">Status: REPLIED</option>
+            <option value="COMPLETED">Status: COMPLETED</option>
+          </select>
           <a href="#ai-personalize-section" className="btn btn-primary">
             ✦ AI Personalize Email
           </a>

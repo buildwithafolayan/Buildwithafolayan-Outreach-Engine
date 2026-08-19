@@ -14,10 +14,34 @@ interface Account {
   status: string;
 }
 
+interface Contact {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  company: string;
+  state: string;
+  industry?: string;
+  city?: string;
+  notes?: string;
+  createdAt: string;
+  lastActivity?: string;
+}
+
+interface Campaign {
+  id: string;
+  name: string;
+  status: "DRAFT" | "ACTIVE" | "PAUSED" | "ARCHIVED";
+  sentCount: number;
+  repliedCount: number;
+  enrolledCount: number;
+  replyRate: string;
+}
+
 export default function DashboardPage() {
   const [account, setAccount] = useState<Account | null>(null);
-  const [totalContacts, setTotalContacts] = useState(5);
-  const [activeCampaigns, setActiveCampaigns] = useState(1);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [globalSending, setGlobalSending] = useState(false);
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
   const [showImportCSV, setShowImportCSV] = useState(false);
@@ -35,10 +59,10 @@ export default function DashboardPage() {
       if (accData.account) setAccount(accData.account);
 
       const contData = await contRes.json();
-      if (contData.contacts) setTotalContacts(contData.contacts.length);
+      if (contData.contacts) setContacts(contData.contacts);
 
       const campData = await campRes.json();
-      if (campData.campaigns) setActiveCampaigns(campData.campaigns.length);
+      if (campData.campaigns) setCampaigns(campData.campaigns);
 
       const setData = await setRes.json();
       if (setData.settings) setGlobalSending(setData.settings.globalSendingEnabled);
@@ -50,6 +74,12 @@ export default function DashboardPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const totalContacts = contacts.length;
+  const activeCampaigns = campaigns.filter((c) => c.status === "ACTIVE").length;
+  const totalSent = campaigns.reduce((sum, c) => sum + (c.sentCount || 0), 0);
+  const totalReplied = campaigns.reduce((sum, c) => sum + (c.repliedCount || 0), 0);
+  const replyRateStr = totalSent > 0 ? `${((totalReplied / totalSent) * 100).toFixed(1)}%` : "0.0%";
 
   const stats = [
     {
@@ -66,7 +96,7 @@ export default function DashboardPage() {
       label: "Active Campaigns",
       value: String(activeCampaigns),
       sub: activeCampaigns > 0 ? `${activeCampaigns} outreach sequences` : "Create campaign",
-      badge: "Active",
+      badge: activeCampaigns > 0 ? "Active" : "Idle",
       badgeColor: "rgba(175, 82, 222, 0.16)",
       textColor: "#c084fc",
       icon: "◈",
@@ -74,9 +104,9 @@ export default function DashboardPage() {
     },
     {
       label: "Dispatched Emails",
-      value: "38",
+      value: String(totalSent),
       sub: globalSending ? "Outreach window open" : "Sending paused",
-      badge: "99.2% inbox",
+      badge: totalSent > 0 ? "Inbox Live" : "Ready",
       badgeColor: "rgba(0, 199, 190, 0.16)",
       textColor: "#2dd4bf",
       icon: "✉",
@@ -84,9 +114,9 @@ export default function DashboardPage() {
     },
     {
       label: "Positive Reply Rate",
-      value: "18.5%",
-      sub: "Hot leads generated",
-      badge: "Top Tier",
+      value: replyRateStr,
+      sub: `${totalReplied} responses recorded`,
+      badge: totalReplied > 0 ? "Replies Detected" : "Awaiting Replies",
       badgeColor: "rgba(245, 158, 11, 0.16)",
       textColor: "#fbbf24",
       icon: "⚡",
@@ -344,7 +374,7 @@ export default function DashboardPage() {
             <div>
               <h3 style={{ fontSize: "16px", fontWeight: 750 }}>Hot Lead Stream</h3>
               <p style={{ fontSize: "12.5px", color: "var(--text-tertiary)" }}>
-                Prospects with positive reply classification
+                Prospects with active sequences or detected replies
               </p>
             </div>
             <span
@@ -357,117 +387,102 @@ export default function DashboardPage() {
                 fontWeight: 650,
               }}
             >
-              1 Active
+              {contacts.filter((c) => c.state === "REPLIED" || c.state === "ENROLLED").length} Active
             </span>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {/* Sarah Chen Hot Lead */}
-            <div
-              style={{
-                padding: "16px",
-                background: "rgba(255, 255, 255, 0.03)",
-                border: "1px solid rgba(16, 185, 129, 0.2)",
-                borderRadius: "14px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div
-                  style={{
-                    width: "36px",
-                    height: "36px",
-                    borderRadius: "50%",
-                    background: "linear-gradient(135deg, #10b981, #059669)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: 750,
-                    fontSize: "13px",
-                    color: "#ffffff",
-                    boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
-                  }}
-                >
-                  SC
-                </div>
-                <div>
-                  <p style={{ fontSize: "13.5px", fontWeight: 700, color: "#ffffff" }}>
-                    Sarah Chen
-                  </p>
-                  <p style={{ fontSize: "11.5px", color: "var(--text-tertiary)" }}>
-                    sarah@investco.io · Commercial Real Estate
-                  </p>
-                </div>
-              </div>
+            {contacts.length === 0 ? (
+              <p style={{ fontSize: "13px", color: "var(--text-tertiary)", padding: "12px 0" }}>
+                No target prospects found. Import contacts to populate live stream.
+              </p>
+            ) : (
+              (contacts.filter((c) => c.state === "REPLIED" || c.state === "ENROLLED").length > 0
+                ? contacts.filter((c) => c.state === "REPLIED" || c.state === "ENROLLED")
+                : contacts.slice(0, 3)
+              ).map((contact, idx) => {
+                const initials =
+                  `${contact.firstName[0] || ""}${contact.lastName[0] || ""}`.toUpperCase() || "P";
+                const isReplied = contact.state === "REPLIED";
+                const isEnrolled = contact.state === "ENROLLED";
 
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 650,
-                  padding: "4px 8px",
-                  borderRadius: "100px",
-                  background: "rgba(16, 185, 129, 0.2)",
-                  color: "#34d399",
-                }}
-              >
-                Positive Interest
-              </span>
-            </div>
+                return (
+                  <Link
+                    key={contact.id || idx}
+                    href={`/contacts/${contact.id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <div
+                      style={{
+                        padding: "16px",
+                        background: isReplied
+                          ? "rgba(16, 185, 129, 0.06)"
+                          : "rgba(255, 255, 255, 0.02)",
+                        border: isReplied
+                          ? "1px solid rgba(16, 185, 129, 0.25)"
+                          : "1px solid var(--border-subtle)",
+                        borderRadius: "14px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div
+                          style={{
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "50%",
+                            background: isReplied
+                              ? "linear-gradient(135deg, #10b981, #059669)"
+                              : isEnrolled
+                              ? "linear-gradient(135deg, #af52de, #7c3aed)"
+                              : "linear-gradient(135deg, #007aff, #5856d6)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: 750,
+                            fontSize: "13px",
+                            color: "#ffffff",
+                            boxShadow: isReplied
+                              ? "0 4px 12px rgba(16, 185, 129, 0.3)"
+                              : "none",
+                          }}
+                        >
+                          {initials}
+                        </div>
+                        <div>
+                          <p style={{ fontSize: "13.5px", fontWeight: 700, color: "#ffffff" }}>
+                            {contact.firstName} {contact.lastName}
+                          </p>
+                          <p style={{ fontSize: "11.5px", color: "var(--text-tertiary)" }}>
+                            {contact.email} · {contact.company}
+                          </p>
+                        </div>
+                      </div>
 
-            {/* John Doe */}
-            <div
-              style={{
-                padding: "16px",
-                background: "rgba(255, 255, 255, 0.02)",
-                border: "1px solid var(--border-subtle)",
-                borderRadius: "14px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div
-                  style={{
-                    width: "36px",
-                    height: "36px",
-                    borderRadius: "50%",
-                    background: "linear-gradient(135deg, #007aff, #0056b3)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: 750,
-                    fontSize: "13px",
-                    color: "#ffffff",
-                  }}
-                >
-                  JD
-                </div>
-                <div>
-                  <p style={{ fontSize: "13.5px", fontWeight: 700, color: "#ffffff" }}>
-                    John Doe
-                  </p>
-                  <p style={{ fontSize: "11.5px", color: "var(--text-tertiary)" }}>
-                    john.doe.investor@example.com · Austin TX
-                  </p>
-                </div>
-              </div>
-
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 650,
-                  padding: "4px 8px",
-                  borderRadius: "100px",
-                  background: "rgba(99, 102, 241, 0.16)",
-                  color: "#a5b4fc",
-                }}
-              >
-                Ready
-              </span>
-            </div>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          fontWeight: 650,
+                          padding: "4px 8px",
+                          borderRadius: "100px",
+                          background: isReplied
+                            ? "rgba(16, 185, 129, 0.2)"
+                            : isEnrolled
+                            ? "rgba(175, 82, 222, 0.16)"
+                            : "rgba(255, 255, 255, 0.08)",
+                          color: isReplied ? "#34d399" : isEnrolled ? "#c084fc" : "var(--text-secondary)",
+                        }}
+                      >
+                        {contact.state}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })
+            )}
           </div>
         </div>
       </div>

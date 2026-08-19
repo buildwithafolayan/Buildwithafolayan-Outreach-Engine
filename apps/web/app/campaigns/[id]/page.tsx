@@ -85,7 +85,26 @@ export default function CampaignDetailPage({
   const toggleCampaignStatus = async () => {
     if (!campaign) return;
     const nextStatus = campaign.status === "ACTIVE" ? "PAUSED" : "ACTIVE";
+    const prevStatus = campaign.status;
+
+    // Optimistic update
     setCampaign({ ...campaign, status: nextStatus });
+
+    try {
+      const res = await fetch(`/api/campaigns/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        console.error("Failed to persist campaign status:", data.error);
+        setCampaign((prev) => (prev ? { ...prev, status: prevStatus } : null));
+      }
+    } catch (err) {
+      console.error("Error persisting campaign status:", err);
+      setCampaign((prev) => (prev ? { ...prev, status: prevStatus } : null));
+    }
   };
 
   if (!campaign && !loading) {

@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 export const DEFAULT_GEMINI_MODEL =
-  process.env.GEMINI_MODEL || "gemini-3.6-flash";
+  process.env.GEMINI_MODEL || "gemini-2.0-flash";
 
 function getClient(): GoogleGenAI {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -19,12 +19,11 @@ async function generateWithFallback(
   prompt: string,
   responseMimeType?: string
 ) {
-  const primaryModel = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+  const primaryModel = process.env.GEMINI_MODEL || "gemini-2.0-flash";
   const candidateModels = [
     primaryModel,
-    "gemini-3.6-flash",
-    "gemini-2.0-flash-001",
     "gemini-2.0-flash",
+    "gemini-2.0-flash-001",
     "gemini-1.5-flash",
   ];
 
