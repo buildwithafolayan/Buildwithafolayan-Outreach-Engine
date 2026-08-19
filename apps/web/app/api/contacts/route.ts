@@ -65,8 +65,12 @@ export async function POST(req: NextRequest) {
     await saveStoredContacts(updated);
 
     return NextResponse.json({ success: true, contact: newContact });
-  } catch (error) {
-    console.error("Failed to create contact:", error);
-    return NextResponse.json({ error: "Failed to create contact" }, { status: 500 });
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error("Failed to create contact:", err);
+    return NextResponse.json(
+      { error: err.message || "Failed to create contact" },
+      { status: 500 }
+    );
   }
 }

@@ -1,5 +1,5 @@
 -- ============================================================
--- Outreach Engine — Supabase Schema
+-- Outreach Engine — Supabase Schema & Policies
 -- Run this in: Supabase Dashboard -> SQL Editor -> New Query
 -- ============================================================
 
@@ -20,7 +20,10 @@ CREATE TABLE IF NOT EXISTS contacts (
   created_at    TEXT NOT NULL,
   last_activity TEXT
 );
-ALTER TABLE contacts DISABLE ROW LEVEL SECURITY;
+
+ALTER TABLE contacts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all on contacts" ON contacts;
+CREATE POLICY "Allow all on contacts" ON contacts FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
 
 -- CAMPAIGNS table
 CREATE TABLE IF NOT EXISTS campaigns (
@@ -39,7 +42,10 @@ CREATE TABLE IF NOT EXISTS campaigns (
   created_at     TEXT NOT NULL,
   next_action    TEXT
 );
-ALTER TABLE campaigns DISABLE ROW LEVEL SECURITY;
+
+ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all on campaigns" ON campaigns;
+CREATE POLICY "Allow all on campaigns" ON campaigns FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
 
 -- SYSTEM_SETTINGS table (always exactly one row with id = 1)
 CREATE TABLE IF NOT EXISTS system_settings (
@@ -58,7 +64,10 @@ CREATE TABLE IF NOT EXISTS system_settings (
   admin_email              TEXT NOT NULL DEFAULT 'you@example.com',
   CONSTRAINT single_row CHECK (id = 1)
 );
-ALTER TABLE system_settings DISABLE ROW LEVEL SECURITY;
+
+ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all on system_settings" ON system_settings;
+CREATE POLICY "Allow all on system_settings" ON system_settings FOR ALL TO anon, authenticated, service_role USING (true) WITH CHECK (true);
 
 -- Seed the single settings row (safe to re-run)
 INSERT INTO system_settings (id)
